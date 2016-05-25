@@ -1,12 +1,115 @@
 package services;
 
-import static play.Logger.*;
+import services.parameters.MkdChs;
+import services.parameters.CisDivision;
 
-public class ExportService {
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.*;
 
-    public static String run(String codebase) {
-        info("codeBase = " + codebase);
-        return "Success";
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Косых Евгений
+ */
+public final class ExportService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportService.class);
+
+    private final SqlScript script;
+
+    public ExportService(Connection connection) throws SQLException, IOException {
+        // TODO: вынести файл куда-то наверх.
+
+        String home = System.getProperty("user.home");
+        script = new SqlScript(new File(home + "/Documents/IdeaProjects/KvitMaker/queries/script.sql"), connection);
     }
 
+    public List<Map<String, String>> getBills(Date month, MkdChs mkdChs, CisDivision cisDivision, String state) throws SQLException {
+
+        LOGGER.debug("The method getBills was invoked:\n" +
+                "\tDate month <= " + month + "\n" +
+                "\tMkdChs mkdChs <= " + mkdChs + "\n" +
+                "\tCisDivision cisDivision <= " + cisDivision + "\n" +
+                "\tString state <= " + state);
+
+        List<Map<String, String>> result = new LinkedList<>();
+
+        final java.sql.Date dbMonth = new java.sql.Date(month.getTime());
+
+        ResultSet resultSet;
+        if (mkdChs == MkdChs.MKD) {
+            script.executeProcedureMkd(dbMonth, cisDivision, state, null);
+            resultSet = script.getKvitMkdCursor(dbMonth, cisDivision, state, null);
+        } else {
+            script.executeProcedureNotMkd(dbMonth, cisDivision, state);
+            resultSet = script.getKvitNotMkdCursor(dbMonth, cisDivision, state);
+        }
+
+        List<String> fields = fields(resultSet.getMetaData());
+        LOGGER.debug("The query returned " + fields.size() + " fields");
+        while(resultSet.next()) {
+            Map<String, String> bill = new TreeMap<>();
+
+            for (String field: fields) {
+
+                String value = resultSet.getString(field);
+                bill.put(field, value == null ? "" : value);
+            }
+
+            result.add(bill);
+        }
+
+        LOGGER.debug("The number of bills => " + result.size());
+
+        return result;
+    }
+
+    public List<Map<String, String>> getBills(Date month, String mkdPremiseId) throws SQLException {
+
+        LOGGER.trace("The method getBills was invoked:\n" +
+                "\tDate month <= " + month + "\n" +
+                "\tString mkdPremiseId <= " + mkdPremiseId);
+
+        List<Map<String, String>> result = new LinkedList<>();
+
+        final java.sql.Date dbMonth = new java.sql.Date(month.getTime());
+
+        script.executeProcedureMkd(dbMonth, null, null, mkdPremiseId);
+
+        ResultSet resultSet = script.getKvitMkdCursor(dbMonth, null, null, mkdPremiseId);
+
+        List<String> fields = fields(resultSet.getMetaData());
+        LOGGER.debug("The query returned " + fields.size() + " fields");
+        while(resultSet.next()) {
+
+            Map<String, String> bill = new TreeMap<>();
+
+            for (String field: fields) {
+
+                String value = resultSet.getString(field);
+                bill.put(field, value == null ? "" : value);
+            }
+
+            result.add(bill);
+        }
+        return result;
+    }
+
+    private List<String> fields(ResultSetMetaData resultSetMetaData) throws SQLException {
+
+        List<String> result = new ArrayList<>(250);
+
+        for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
+
+            result.add(resultSetMetaData.getColumnLabel(i));
+        }
+
+        return result;
+    }
 }

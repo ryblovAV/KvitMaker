@@ -8,7 +8,7 @@ import services.ExportService
 class Application @Inject() (db: Database) extends Controller {
 
   def startUnload = Action {
-    val message = ExportService.run("11")
+    val message = "OK";// ExportService.run("11")
     Ok(message)
   }
 
