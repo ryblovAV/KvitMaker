@@ -22,10 +22,7 @@ public final class ExportService {
     private final SqlScript script;
 
     public ExportService(Connection connection) throws SQLException, IOException {
-        // TODO: вынести файл куда-то наверх.
-
-        String home = System.getProperty("user.home");
-        script = new SqlScript(new File(home + "/Documents/IdeaProjects/KvitMaker/queries/script.sql"), connection);
+        script = new SqlScript(new File("queries//script.sql"), connection);
     }
 
     private List<Map<String, String>> fillData(ResultSet resultSet) throws SQLException {
