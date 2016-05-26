@@ -1,8 +1,6 @@
 package services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import static play.Logger.*;
 import services.parameters.CisDivision;
 import services.parameters.MkdChs;
 
@@ -22,8 +20,6 @@ import java.util.*;
  */
 public final class ExportService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExportService.class);
-
     private final SqlScript script;
 
     public ExportService(Connection connection) throws SQLException, IOException {
@@ -36,7 +32,7 @@ public final class ExportService {
     private List<Map<String, String>> fillData(ResultSet resultSet) throws SQLException {
 
         List<String> fields = fields(resultSet.getMetaData());
-        LOGGER.debug("The query returned " + fields.size() + " fields");
+        debug("The query returned " + fields.size() + " fields");
 
         List<Map<String, String>> result = new LinkedList<>();
 
@@ -51,13 +47,13 @@ public final class ExportService {
             result.add(bill);
         }
 
-        LOGGER.debug("The number of bills => " + result.size());
+        debug("The number of bills => " + result.size());
         return result;
     }
 
     public List<Map<String, String>> getBills(Date month, MkdChs mkdChs, CisDivision cisDivision, String state) throws SQLException {
 
-        LOGGER.debug("The method getBills was invoked:\n" +
+        debug("The method getBills was invoked:\n" +
                 "\tDate month <= " + month + "\n" +
                 "\tMkdChs mkdChs <= " + mkdChs + "\n" +
                 "\tCisDivision cisDivision <= " + cisDivision + "\n" +
@@ -80,7 +76,7 @@ public final class ExportService {
 
     public List<Map<String, String>> getBills(Date month, String mkdPremiseId) throws SQLException {
 
-        LOGGER.trace("The method getBills was invoked:\n" +
+        trace("The method getBills was invoked:\n" +
                 "\tDate month <= " + month + "\n" +
                 "\tString mkdPremiseId <= " + mkdPremiseId);
 
