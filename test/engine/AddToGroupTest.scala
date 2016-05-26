@@ -83,6 +83,7 @@ class AddToGroupTest extends FunSuite{
 
     val res2 = source match {
       case h::t => (h ::: listAddress) :: t
+      case Nil => Nil
     }
 
     assert(res === res2)
