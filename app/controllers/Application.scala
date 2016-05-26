@@ -36,7 +36,7 @@ class Application @Inject() (db: Database) extends Controller {
   }
 
   def index = Action {
-    Ok(views.html.export())
+    Ok(views.html.Export())
   }
 
 }

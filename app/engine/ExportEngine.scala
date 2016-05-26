@@ -64,7 +64,7 @@ object ExportEngine {
   def start(attr: StartExportAttr) = {
     info(s"start: attr = $attr")
     attr.codeArray.split(";").map((code) => Future {
-      group(ExportService.run(code).asScala.zipWithIndex, partitionCnt = 1000)
+      //group(ExportService.run(code).asScala.zipWithIndex, partitionCnt = 1000)
     })
   }
 

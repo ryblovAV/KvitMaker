@@ -1,37 +1,107 @@
 package services;
 
-import engine.ExportEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import services.parameters.CisDivision;
+import services.parameters.MkdChs;
+
+import java.io.File;
+import java.io.IOException;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 
 import java.util.*;
 
-import static models.Kvit.*;
 
+/**
+ * @author Косых Евгений
+ */
+public final class ExportService {
 
-public class ExportService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportService.class);
 
+    private final SqlScript script;
 
-    private static Map<String,String> createKvit(int postal, int address, int id) {
-        Map<String,String> kvit = new HashMap<>();
+    public ExportService(Connection connection) throws SQLException, IOException {
+        // TODO: вынести файл куда-то наверх.
 
-        kvit.put(POSTAL(), "postal_" + postal);
-        kvit.put(ADDRESS_SHORT(), "address_" + address);
-        kvit.put(ID(), new Integer(id).toString());
-
-        return kvit;
+        String home = System.getProperty("user.home");
+        script = new SqlScript(new File(home + "/Documents/IdeaProjects/KvitMaker/queries/script.sql"), connection);
     }
 
-    public static List<Map<String,String>> run(String codeBase) {
+    private List<Map<String, String>> fillData(ResultSet resultSet) throws SQLException {
 
-        ArrayList<Map<String,String>> kvits = new ArrayList<>();
+        List<String> fields = fields(resultSet.getMetaData());
+        LOGGER.debug("The query returned " + fields.size() + " fields");
 
-        int i = 0;
-        for (int postal = 0; postal < 5; postal++) {
-            for (int address = 0; address < 37; address++) {
-                kvits.add(createKvit(postal,address,i));
+        List<Map<String, String>> result = new LinkedList<>();
+
+        while (resultSet.next()) {
+            Map<String, String> bill = new TreeMap<>();
+
+            for (String field : fields) {
+                String value = resultSet.getString(field);
+                bill.put(field, value == null ? "" : value);
             }
+
+            result.add(bill);
         }
 
-        return kvits;
+        LOGGER.debug("The number of bills => " + result.size());
+        return result;
+    }
+
+    public List<Map<String, String>> getBills(Date month, MkdChs mkdChs, CisDivision cisDivision, String state) throws SQLException {
+
+        LOGGER.debug("The method getBills was invoked:\n" +
+                "\tDate month <= " + month + "\n" +
+                "\tMkdChs mkdChs <= " + mkdChs + "\n" +
+                "\tCisDivision cisDivision <= " + cisDivision + "\n" +
+                "\tString state <= " + state);
+
+
+        final java.sql.Date dbMonth = new java.sql.Date(month.getTime());
+
+        ResultSet resultSet;
+        if (mkdChs == MkdChs.MKD) {
+            script.executeProcedureMkd(dbMonth, cisDivision, state, null);
+            resultSet = script.getKvitMkdCursor(dbMonth, cisDivision, state, null);
+        } else {
+            script.executeProcedureNotMkd(dbMonth, cisDivision, state);
+            resultSet = script.getKvitNotMkdCursor(dbMonth, cisDivision, state);
+        }
+
+        return fillData(resultSet);
+    }
+
+    public List<Map<String, String>> getBills(Date month, String mkdPremiseId) throws SQLException {
+
+        LOGGER.trace("The method getBills was invoked:\n" +
+                "\tDate month <= " + month + "\n" +
+                "\tString mkdPremiseId <= " + mkdPremiseId);
+
+        final java.sql.Date dbMonth = new java.sql.Date(month.getTime());
+
+        script.executeProcedureMkd(dbMonth, null, null, mkdPremiseId);
+
+        ResultSet resultSet = script.getKvitMkdCursor(dbMonth, null, null, mkdPremiseId);
+
+        return fillData(resultSet);
+    }
+
+    private List<String> fields(ResultSetMetaData resultSetMetaData) throws SQLException {
+
+        List<String> result = new ArrayList<>(250);
+
+        for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
+            result.add(resultSetMetaData.getColumnLabel(i));
+        }
+
+        return result;
     }
 
 }
