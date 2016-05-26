@@ -8,6 +8,10 @@ scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq( jdbc , cache , ws   , specs2 % Test )
 
+libraryDependencies ++= Seq(
+  "org.scalatest" % "scalatest_2.11" % "2.2.6"
+)
+
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"  
