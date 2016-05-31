@@ -12,7 +12,7 @@ case class StartExportAttr(month: Int,
                            codeArrayStr: String) {
   def dt = {
     val calendar = Calendar.getInstance
-    calendar.set(year, month, 1)
+    calendar.set(year, month-1, 1)
     calendar.getTime
   }
 
