@@ -1,18 +1,18 @@
 package services;
 
-import static play.Logger.*;
 import services.parameters.CisDivision;
 import services.parameters.MkdChs;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-
 import java.util.*;
+
+import static play.Logger.debug;
+import static play.Logger.trace;
 
 /**
  * @author Косых Евгений

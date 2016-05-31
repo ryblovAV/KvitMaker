@@ -33,7 +33,7 @@ class AddToGroupTest extends FunSuite{
     val listAddress = List.empty[JMap[String, String]]
     val source = List.empty[List[JMap[String, String]]]
 
-    val res = ExportEngine.addToGroup(listAddress = listAddress, source = source, partitionCnt = 100)
+    val res = GroupEngine.addToGroup(listAddress = listAddress, source = source, partitionCnt = 100)
 
     assert(res.length === 0)
   }
@@ -42,7 +42,7 @@ class AddToGroupTest extends FunSuite{
     val listAddress = List.empty[JMap[String, String]]
     val source = fillSource(postal = 1,cntAddress = 10, cnt = 10)
 
-    val res = ExportEngine.addToGroup(listAddress = listAddress, source = source, partitionCnt = 100)
+    val res = GroupEngine.addToGroup(listAddress = listAddress, source = source, partitionCnt = 100)
 
     assert(res === source)
   }
@@ -51,7 +51,7 @@ class AddToGroupTest extends FunSuite{
     val listAddress = fillKvit(postal = 0, address = 0, cnt = 90)
     val source = List.empty[List[JMap[String, String]]]
 
-    val res = ExportEngine.addToGroup(listAddress = listAddress,source = source,100)
+    val res = GroupEngine.addToGroup(listAddress = listAddress,source = source,100)
 
     assert(res === List(listAddress))
 
@@ -61,7 +61,7 @@ class AddToGroupTest extends FunSuite{
     val listAddress = fillKvit(postal = 0, address = 99, cnt = 3)
     val source = List.empty[List[JMap[String, String]]]
 
-    val res = ExportEngine.addToGroup(listAddress,source,100)
+    val res = GroupEngine.addToGroup(listAddress,source,100)
 
     assert(res === List(listAddress))
   }
@@ -70,7 +70,7 @@ class AddToGroupTest extends FunSuite{
     val listAddress = fillKvit(postal = 0, address = 99, cnt = 3)
     val source = fillSource(postal = 0, cntAddress = 3, cnt = 3)
 
-    val res = ExportEngine.addToGroup(listAddress = listAddress,source = source, partitionCnt = 8)
+    val res = GroupEngine.addToGroup(listAddress = listAddress,source = source, partitionCnt = 8)
 
     assert(res === listAddress::source)
   }
@@ -79,7 +79,7 @@ class AddToGroupTest extends FunSuite{
     val listAddress = fillKvit(postal = 0, address = 4, cnt = 3)
     val source = fillSource(postal = 0, cntAddress = 3, cnt = 3)
 
-    val res = ExportEngine.addToGroup(listAddress = listAddress,source = source, partitionCnt = 90)
+    val res = GroupEngine.addToGroup(listAddress = listAddress,source = source, partitionCnt = 90)
 
     val res2 = source match {
       case h::t => (h ::: listAddress) :: t

@@ -22,7 +22,7 @@ class SplitByPartitionTest extends FunSuite {
     val n = ((partitionCnt / cnt) + (if (partitionCnt % cnt > 0) 1 else 0)) * cnt
     val correctRes = List(listPostal.take(n),listPostal.takeRight(cntAddress * cnt - n)).filter(!_.isEmpty)
 
-    val res = ExportEngine.splitByPartition(listPostal = listPostal.zipWithIndex,partitionCnt = partitionCnt)
+    val res = GroupEngine.splitByPartition(listPostal = listPostal.zipWithIndex,partitionCnt = partitionCnt)
 
     assert(res === correctRes)
   }

@@ -20,7 +20,7 @@ class GroupTest extends FunSuite {
   test("group"){
     val kvits = fill(cntPostal = 2, cntAddress = 4, cnt = 3)
 
-    val res = ExportEngine.group(kvits = kvits.zipWithIndex, partitionCnt = 7)
+    val res = GroupEngine.group(bills = kvits.zipWithIndex, partitionCnt = 7)
 
     val (l1, k1) = kvits.splitAt(9)
 

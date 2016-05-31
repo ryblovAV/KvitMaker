@@ -2,7 +2,6 @@ package services.exporters;
 
 import services.parameters.Format;
 
-
 import java.sql.ResultSet;
 
 /**
