@@ -1,9 +1,9 @@
 package engine
 
-import org.scalatest.FunSuite
-
-import Utl._
 import java.util.{ArrayList => JArrayList}
+
+import engine.Utl._
+import org.scalatest.FunSuite
 
 class GroupTest extends FunSuite {
 

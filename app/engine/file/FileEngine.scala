@@ -1,11 +1,11 @@
 package engine.file
 
-import java.io.{File, FileInputStream}
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Date, ArrayList => JArrayList, List => JList}
 
 import config.AppConfig
-import engine.{RegistryBuilder, RegistryRow}
+import engine.RegistryBuilder
 import org.apache.commons.io.FileUtils
 import org.zeroturnaround.zip.ZipUtil
 import play.Logger._

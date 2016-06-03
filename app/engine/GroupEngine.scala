@@ -1,6 +1,6 @@
 package engine
 
-import java.util.{List => JList, ArrayList => JArrayList}
+import java.util.{ArrayList => JArrayList, List => JList}
 
 import config.AppConfig
 import models.Kvit._

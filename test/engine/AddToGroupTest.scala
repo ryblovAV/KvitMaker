@@ -2,13 +2,10 @@ package engine
 
 import java.util.{ArrayList => JArrayList}
 
-import models.Kvit._
+import engine.Utl._
 import org.scalatest.FunSuite
 
-import scala.collection.JavaConverters._
 import scala.language.implicitConversions
-
-import Utl._
 
 class AddToGroupTest extends FunSuite{
 

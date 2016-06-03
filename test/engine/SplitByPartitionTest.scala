@@ -1,10 +1,9 @@
 package engine
 
-import org.scalatest.FunSuite
-
 import java.util.{ArrayList => JArrayList}
 
-import Utl._
+import engine.Utl._
+import org.scalatest.FunSuite
 
 class SplitByPartitionTest extends FunSuite {
 
