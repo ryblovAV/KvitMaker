@@ -11,12 +11,10 @@ object ProcessResult {
   private val processResult = new ConcurrentHashMap[String,String]().asScala
 
   def addProcessResult(processId: String, fileName: String) = {
-    info(s"put result ($processId -> $fileName)")
     processResult.putIfAbsent(processId,fileName)
   }
 
   def getProcessResult(processId: String) = {
-    info(s"get result processId = $processId")
     processResult.get(processId)
   }
 
