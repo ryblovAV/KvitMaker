@@ -21,11 +21,14 @@ object ExportEngine {
                      dt: Date,
                      mkdChs: MkdChs,
                      cisDivision: CisDivision,
-                     dbLogWriter: DBLogWriter) = {
+                     dbLogWriter: DBLogWriter,
+                     removeFromActiveKey: String => Unit
+                    ) = {
     Future {
       info(s"start partition codeArray:${codeArray}")
       codeArray.map(code =>
-        DBReader.readBillsFromDb(dt,mkdChs,cisDivision,code,dbLogWriter)
+        DBReader.readBillsFromDb(
+          dt,mkdChs,cisDivision,code,dbLogWriter,removeFromActiveKey)
         .map(bills => GroupEngine.run(bills))
         .map(groupBills => FileEngine.makeAllFile(
                 processId,
@@ -45,7 +48,9 @@ object ExportEngine {
             mkdChs: MkdChs,
             cisDivision: CisDivision,
             codeArray: Array[String],
-            dbLogWriter: DBLogWriter) = {
+            dbLogWriter: DBLogWriter,
+            removeFromActiveKey: String => Unit
+           ) = {
 
 
 
@@ -62,8 +67,8 @@ object ExportEngine {
           dt,
           mkdChs,
           cisDivision,
-          dbLogWriter
-        )
+          dbLogWriter,
+          removeFromActiveKey)
     )
 
     Future.sequence(l.toList)

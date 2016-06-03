@@ -2,11 +2,10 @@ package controllers
 
 import java.io.File
 import java.util.Calendar
-import java.util.concurrent.ConcurrentHashMap
 
 import engine.db.{DBLogReader, DBLogWriter, ProgressInfo}
 import engine.file.FileEngine
-import engine.{ExportEngine, MessageBuilder, ProcessResult}
+import engine.{ActiveCodeStorage, ExportEngine, MessageBuilder, ProcessResult}
 import models.StartExportAttr
 import play.Logger._
 import play.api.libs.functional.syntax._
@@ -15,8 +14,6 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.twirl.api.Html
 
-import scala.collection._
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
@@ -49,8 +46,6 @@ class Application extends Controller {
       "error" -> info.error)
   }
 
-  val activeKey = mutable.Set.empty[String]
-
   def logResult(l: List[Array[Try[List[String]]]]) = {
     l.flatMap(a => a.toList).map{
       case Success(s) => s"result: $s"
@@ -80,18 +75,17 @@ class Application extends Controller {
                 cisDivision = attr.cisDivision,
                 codeArray = attr.codeArray,
                 dbLogWriter = new DBLogWriter(processId),
-                processId = processId
+                processId = processId,
+                removeFromActiveKey = (code => ActiveCodeStorage.removeFromActiveKey(code, attr.key))
               )
 
               f.onComplete(r => r match {
                 case Success(s) =>
                   info(s"processId = $processId complete: ${Calendar.getInstance().getTime} ${logResult(s)}")
                   ProcessResult.addProcessResult(processId,FileEngine.makeZip(processId))
-                  removeFromActiveKey(attr.codeArray, attr.key)
                 case Failure(e) =>
                   error(e.toString)
                   Ok(toJson(ExportResultInfo(processId,e.getMessage)))
-                  removeFromActiveKey(attr.codeArray, attr.key)
               })
 
               info("Export: Ok")
@@ -106,21 +100,17 @@ class Application extends Controller {
     }
   }
 
-  def checkActiveKey(codeArray: Array[String], codeToKey: String => String) = activeKey.synchronized {
+  def checkActiveKey(codeArray: Array[String], codeToKey: String => String) = {
     info(s"codeArray = ${codeArray.mkString(";")}")
-    info(s"activeKey before = $activeKey")
-    val codeInActive = codeArray.filter(code => activeKey.contains(codeToKey(code)))
+    info(s"activeKey before = ${ActiveCodeStorage.toString}")
+    val codeInActive = codeArray.filter(code => ActiveCodeStorage.check(code, codeToKey))
     if (codeInActive.isEmpty)
-      activeKey ++= codeArray.map(code => codeToKey(code))
+      ActiveCodeStorage.add(codeArray,codeToKey)
+
     info(s"codeInActive: ${codeInActive.mkString(";")}")
-    info(s"activeKey after= $activeKey")
+    info(s"activeKey after= ${ActiveCodeStorage.toString}")
     codeInActive
   }
-
-  def removeFromActiveKey(codeArray: Array[String], codeToKey: String => String) = activeKey.synchronized {
-    activeKey --= codeArray.map(code => codeToKey(code))
-  }
-
 
   def index = Action {
     Ok(views.html.startExport())

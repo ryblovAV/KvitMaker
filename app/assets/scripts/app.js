@@ -23,6 +23,10 @@
             if ($scope.mkdType !== "MKD") {
                 $scope.premId = ""
             }
+            
+            if (($scope.mkdType == "MKD") && ($scope.premId != undefined) && ($scope.premId.trim() != "")) {
+                $scope.codeArray = [];
+            }             
 
             var attr = {
                 month: $scope.month,

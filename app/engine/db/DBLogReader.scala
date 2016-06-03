@@ -3,7 +3,7 @@ package engine.db
 import java.sql.DriverManager
 
 import config.DBConfig
-import engine.{ProcessResult, SQLBuilder}
+import engine.SQLBuilder
 
 import scala.collection.mutable.ArrayBuffer
 
