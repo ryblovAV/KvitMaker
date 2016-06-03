@@ -25,19 +25,19 @@ public final class ExportService {
         script = new SqlScript(new File("queries//script.sql"), connection);
     }
 
-    private List<Map<String, String>> fillData(ResultSet resultSet) throws SQLException {
+    private List<ArrayList<String>> fillData(ResultSet resultSet) throws SQLException {
 
         List<String> fields = fields(resultSet.getMetaData());
         debug("The query returned " + fields.size() + " fields");
 
-        List<Map<String, String>> result = new LinkedList<>();
+        List<ArrayList<String>> result = new LinkedList<>();
 
         while (resultSet.next()) {
-            Map<String, String> bill = new TreeMap<>();
+            ArrayList<String> bill = new ArrayList<>();
 
             for (String field : fields) {
                 String value = resultSet.getString(field);
-                bill.put(field, value == null ? "" : value);
+                bill.add(value == null ? "" : value);
             }
 
             result.add(bill);
@@ -47,7 +47,7 @@ public final class ExportService {
         return result;
     }
 
-    public List<Map<String, String>> getBills(Date month, MkdChs mkdChs, CisDivision cisDivision, String state) throws SQLException {
+    public List<ArrayList<String>> getBills(Date month, MkdChs mkdChs, CisDivision cisDivision, String state) throws SQLException {
 
         debug("The method getBills was invoked:\n" +
                 "\tDate month <= " + month + "\n" +
@@ -70,7 +70,7 @@ public final class ExportService {
         return fillData(resultSet);
     }
 
-    public List<Map<String, String>> getBills(Date month, String mkdPremiseId) throws SQLException {
+    public List<ArrayList<String>> getBills(Date month, String mkdPremiseId) throws SQLException {
 
         trace("The method getBills was invoked:\n" +
                 "\tDate month <= " + month + "\n" +

@@ -243,10 +243,7 @@ select bd_lesk,
        KVITGP,
        KVITDELE,
        KVITOGRA,
-       KVITGPDELEOGRA,
-       bd_lesk,
-       postal,
-       addressshort
+       KVITGPDELEOGRA
   from (select distinct
                bd_lesk,
                leskgesk,

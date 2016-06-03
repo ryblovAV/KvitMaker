@@ -1,7 +1,8 @@
 package engine
 
-import java.util.{List => JList, Map => JMap}
+import java.util.{List => JList, ArrayList => JArrayList}
 
+import config.AppConfig
 import models.Kvit._
 import play.Logger._
 
@@ -10,9 +11,9 @@ import scala.language.implicitConversions
 
 object GroupEngine {
 
-  def addToGroup(listAddress: List[JMap[String, String]],
-                 source: List[List[JMap[String, String]]],
-                 partitionCnt: Int): List[List[JMap[String, String]]] = {
+  def addToGroup(listAddress: List[JArrayList[String]],
+                 source: List[List[JArrayList[String]]],
+                 partitionCnt: Int): List[List[JArrayList[String]]] = {
     (source,listAddress) match {
       case (s, Nil) => s
       case (Nil,l) => List(l)
@@ -21,36 +22,38 @@ object GroupEngine {
     }
   }
 
-  def attrByName(a: (JMap[String, String], Int), attrName: String) = a match {
-    case (e, i) => e.get(attrName)
+  def attrByIndex(a: (JArrayList[String], Int), attrIndex: Int) = a match {
+    case (e, i) => e.get(attrIndex)
   }
 
-  def index(a: Seq[(JMap[String, String], Int)]) = a match {
-    case (e, i) :: _ => i
+  def index(a: Seq[(JArrayList[String], Int)]) = a.head match {
+      case (_,i) => i
   }
 
-  def splitByPartition(listPostal: List[(JMap[String, String], Int)],
+  def splitByPartition(listPostal: List[(JArrayList[String], Int)],
                        partitionCnt: Int) = {
-    listPostal.groupBy(attrByName(_, ADDRESS_SHORT))
+    listPostal.
+      groupBy(attrByIndex(_, ADDRESS_SHORT_INDEX))
       .values
       .toSeq
       .sortBy(index)
       .map(l => l.map(_._1))
-      .foldLeft(List.empty[List[JMap[String, String]]])((b, a) => addToGroup(listAddress = a, source = b, partitionCnt = partitionCnt))
+      .foldLeft(List.empty[List[JArrayList[String]]])((b, a) => addToGroup(listAddress = a, source = b, partitionCnt = partitionCnt))
       .reverse
   }
 
-  def group(bills: Seq[(JMap[String, String], Int)], partitionCnt: Int) = {
-    bills.groupBy(attrByName(_, POSTAL))
+  def group(bills: Seq[(JArrayList[String], Int)], partitionCnt: Int) = {
+    bills
+      .groupBy(attrByIndex(_, POSTAL_INDEX))
       .values
       .toSeq
       .sortBy(index)
       .flatMap(listPostal => splitByPartition(listPostal.toList, partitionCnt = partitionCnt))
   }
 
-  def run(bills: JList[JMap[String, String]]): Seq[List[JMap[String, String]]] = {
-    info(s"group size = ${bills.size}")
-    group(bills = bills.asScala.zipWithIndex, partitionCnt = 1000)
+  def run(bills: JList[JArrayList[String]]): Seq[List[JArrayList[String]]] = {
+    info(s"start grouping size = ${bills.size}")
+    group(bills = bills.asScala.zipWithIndex, partitionCnt = AppConfig.partition)
   }
 
 }

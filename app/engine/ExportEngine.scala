@@ -12,9 +12,6 @@ import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.implicitConversions
-import scala.util.{Failure, Success}
-
-import play.Logger._
 
 object ExportEngine {
 
@@ -26,20 +23,19 @@ object ExportEngine {
                      cisDivision: CisDivision,
                      dbLogWriter: DBLogWriter) = {
     Future {
-      info("start partition")
+      info(s"start partition codeArray:${codeArray}")
       codeArray.map(code =>
         DBReader.readBillsFromDb(dt,mkdChs,cisDivision,code,dbLogWriter)
         .map(bills => GroupEngine.run(bills))
-        .map(group => group.zipWithIndex
-          .foreach{
-            case (bills,index) =>
-              FileEngine.makeCSVFile(processId,code,index,bills)
-              //FileEngine.makeCSVFile(processId = processId, code = code, num = index,bills = bills)
-          }
+        .map(groupBills => FileEngine.makeAllFile(
+                processId,
+                mkdChs,
+                cisDivision,
+                code,
+                dt,
+                groupBills.map(_.asJava).asJava))
         )
-      )
     }
-          //CompressEngine.compress(bills.asJava)
   }
 
 
@@ -71,12 +67,6 @@ object ExportEngine {
     )
 
     Future.sequence(l.toList)
-      .foreach(l => l.flatMap(a => a.map{
-        case Success(s) => info(s"successs: $s")
-        case Failure(e) => info(s"failure: ${e.getMessage}")
-      })
-    )
-
   }
 
 }

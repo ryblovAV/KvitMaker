@@ -14,7 +14,9 @@
         $scope.message = "";
         $scope.progressArray = [];
         $scope:processId = "";
-
+        $scope.getArchiveDisabled = true;
+        $scope.archiveMessage = "";
+        $scope.saveArchive = true;    
 
         $scope.submit = function() {
 
@@ -39,7 +41,12 @@
 
             $scope.message = check()
             if ($scope.message === '') {
-                console.log("send post export")
+                console.log("send post export");
+                
+                $scope.getArchiveDisabled = true;
+                $scope.archiveMessage = "";
+                $scope.saveArchive = true;
+                
                 $http.post('/startProcess',attr).success(
                     function (result) {
                         if (result.error !== "") {
@@ -82,10 +89,18 @@
 
             return "";
         }
+            
+        $scope.getArchive = function() {
+            console.log("call getArchive processId = "+$scope.processId);
+            if (($scope.processId != undefined) && ($scope.processId != '')) {
+                $window.location.href = '/result?processId='+$scope.processId;
+            }
+        }
 
         $interval(
             function() {
-                if ((typeof $scope.processId != 'undefined') && ($scope.processId !== "")) {
+                console.log("processId = " + $scope.processId)
+                if (($scope.processId != undefined) && ($scope.processId !== "")) {
                     console.log("processId = " + $scope.processId);
                     $http.get('/progressInfo?processId='+$scope.processId).
                     success(
@@ -93,7 +108,24 @@
                             console.log(result);
                             $scope.progressArray = result;
                         }
-                    )
+                    );
+                    $http.get('/archiveFileName?processId='+$scope.processId).
+                    success(
+                        function(fileName) {
+                            console.log(fileName);
+                            if ((fileName != undefined) && (fileName != '')) {
+                                console.log("fileName = "+fileName);
+                                $scope.getArchiveDisabled = false;
+                                $scope.archiveMessage = "Выгрузка завершена";
+                                
+                                if ($scope.saveArchive) {
+                                    $scope.saveArchive = false;
+                                    $scope.getArchive();
+                                }
+                                
+                            }
+                        }
+                    );
                 }
             },
             10000

@@ -2,7 +2,7 @@ package engine
 
 import org.scalatest.FunSuite
 
-import java.util.{Map => JMap}
+import java.util.{ArrayList => JArrayList}
 
 import Utl._
 
@@ -14,7 +14,7 @@ class SplitByPartitionTest extends FunSuite {
         .map(i => createKvit(postal = postal, address = address, id = address * cnt + i)))
   }
 
-  def partition(listPostal: List[JMap[String, String]],
+  def partition(listPostal: List[JArrayList[String]],
               partitionCnt: Int,
               cnt: Int,
               cntAddress: Int) = {

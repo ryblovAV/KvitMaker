@@ -1,6 +1,6 @@
 package engine
 
-import java.util.{Map => JMap}
+import java.util.{ArrayList => JArrayList}
 
 import models.Kvit._
 import org.scalatest.FunSuite
@@ -12,7 +12,7 @@ import Utl._
 
 class AddToGroupTest extends FunSuite{
 
-  def fillSource(postal: Int, cntAddress: Int, cnt: Int): List[List[JMap[String, String]]] = {
+  def fillSource(postal: Int, cntAddress: Int, cnt: Int): List[List[JArrayList[String]]] = {
     List(
       (0 until cntAddress).toList
         .flatMap(address => (0 until cnt)
@@ -22,7 +22,7 @@ class AddToGroupTest extends FunSuite{
     )
   }
 
-  def fillKvit(postal: Int, address: Int, cnt: Int): List[JMap[String, String]] = {
+  def fillKvit(postal: Int, address: Int, cnt: Int): List[JArrayList[String]] = {
     (0 until cnt).map(
       id => createKvit(postal = postal, address = address, id = id)
     ).toList
@@ -30,8 +30,8 @@ class AddToGroupTest extends FunSuite{
 
 
   test("group empty source and target") {
-    val listAddress = List.empty[JMap[String, String]]
-    val source = List.empty[List[JMap[String, String]]]
+    val listAddress: List[JArrayList[String]] = List.empty[JArrayList[String]]
+    val source = List.empty[List[JArrayList[String]]]
 
     val res = GroupEngine.addToGroup(listAddress = listAddress, source = source, partitionCnt = 100)
 
@@ -39,7 +39,7 @@ class AddToGroupTest extends FunSuite{
   }
 
   test("group empty source") {
-    val listAddress = List.empty[JMap[String, String]]
+    val listAddress = List.empty[JArrayList[String]]
     val source = fillSource(postal = 1,cntAddress = 10, cnt = 10)
 
     val res = GroupEngine.addToGroup(listAddress = listAddress, source = source, partitionCnt = 100)
@@ -49,7 +49,7 @@ class AddToGroupTest extends FunSuite{
 
   test("group empty targer (cnt < partition") {
     val listAddress = fillKvit(postal = 0, address = 0, cnt = 90)
-    val source = List.empty[List[JMap[String, String]]]
+    val source = List.empty[List[JArrayList[String]]]
 
     val res = GroupEngine.addToGroup(listAddress = listAddress,source = source,100)
 
@@ -59,7 +59,7 @@ class AddToGroupTest extends FunSuite{
 
   test("group empty targer (cnt > partition") {
     val listAddress = fillKvit(postal = 0, address = 99, cnt = 3)
-    val source = List.empty[List[JMap[String, String]]]
+    val source = List.empty[List[JArrayList[String]]]
 
     val res = GroupEngine.addToGroup(listAddress,source,100)
 

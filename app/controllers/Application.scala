@@ -1,7 +1,12 @@
 package controllers
 
+import java.io.File
+import java.util.Calendar
+import java.util.concurrent.ConcurrentHashMap
+
 import engine.db.{DBLogReader, DBLogWriter, ProgressInfo}
-import engine.{ExportEngine, MessageBuilder}
+import engine.file.FileEngine
+import engine.{ExportEngine, MessageBuilder, ProcessResult}
 import models.StartExportAttr
 import play.Logger._
 import play.api.libs.functional.syntax._
@@ -9,6 +14,11 @@ import play.api.libs.json.Json._
 import play.api.libs.json._
 import play.api.mvc._
 import play.twirl.api.Html
+
+import scala.collection._
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
 
 
 class Application extends Controller {
@@ -27,6 +37,7 @@ class Application extends Controller {
   implicit val progressWriters = new Writes[ProgressInfo] {
     def writes(progress: ProgressInfo) = Json.obj(
       "code" -> progress.code,
+      "dtStart" -> progress.dtStart,
       "dt" -> progress.dt,
       "message" -> progress.message
     )
@@ -38,11 +49,18 @@ class Application extends Controller {
       "error" -> info.error)
   }
 
-  var activeKey = Set.empty[String]
+  val activeKey = mutable.Set.empty[String]
+
+  def logResult(l: List[Array[Try[List[String]]]]) = {
+    l.flatMap(a => a.toList).map{
+      case Success(s) => s"result: $s"
+      case Failure(e) => s"error: $e"
+    }
+  }
 
   def startProcess = Action(parse.json) {
     request => {
-      info("------------------ start process")
+      info("------------------ start process" + Calendar.getInstance().getTime.toString)
       request.body.validate[StartExportAttr].map {
         case attr: StartExportAttr =>
           val filterCodeArray = checkActiveKey(attr.codeArray, attr.key)
@@ -51,11 +69,11 @@ class Application extends Controller {
             info(s"find repeat code ${filterCodeArray.mkString(";")}")
             Ok(toJson(ExportResultInfo(processId = "", error = MessageBuilder.repeatCodeMessage(filterCodeArray))))
           } else {
-            val processId = java.util.UUID.randomUUID.toString
-            try {
+            val processId = Calendar.getInstance().getTimeInMillis().toString
+
               info(s"start processId = $processId")
 
-              ExportEngine.start(
+              val f = ExportEngine.start(
                 mkdPremiseId = attr.premId,
                 dt = attr.dt,
                 mkdChs = attr.mkdChs,
@@ -64,15 +82,21 @@ class Application extends Controller {
                 dbLogWriter = new DBLogWriter(processId),
                 processId = processId
               )
-                info("Export: Ok")
-                Ok(toJson(ExportResultInfo(processId,"")))
-            } catch {
-              case e:Exception =>
-                error(e.toString)
-                Ok(toJson(ExportResultInfo(processId,e.getMessage)))
-            } finally {
-              removeFromActiveKey(attr.codeArray, attr.key)
-            }
+
+              f.onComplete(r => r match {
+                case Success(s) =>
+                  info(s"processId = $processId complete: ${Calendar.getInstance().getTime} ${logResult(s)}")
+                  ProcessResult.addProcessResult(processId,FileEngine.makeZip(processId))
+                  removeFromActiveKey(attr.codeArray, attr.key)
+                case Failure(e) =>
+                  error(e.toString)
+                  Ok(toJson(ExportResultInfo(processId,e.getMessage)))
+                  removeFromActiveKey(attr.codeArray, attr.key)
+              })
+
+              info("Export: Ok")
+              Ok(toJson(ExportResultInfo(processId,"")))
+
           }
       }.recoverTotal {
         e =>
@@ -87,15 +111,16 @@ class Application extends Controller {
     info(s"activeKey before = $activeKey")
     val codeInActive = codeArray.filter(code => activeKey.contains(codeToKey(code)))
     if (codeInActive.isEmpty)
-      activeKey = activeKey ++ codeArray.map(code => codeToKey(code))
+      activeKey ++= codeArray.map(code => codeToKey(code))
     info(s"codeInActive: ${codeInActive.mkString(";")}")
     info(s"activeKey after= $activeKey")
     codeInActive
   }
 
   def removeFromActiveKey(codeArray: Array[String], codeToKey: String => String) = activeKey.synchronized {
-    activeKey = activeKey -- codeArray.map(code => codeToKey(code))
+    activeKey --= codeArray.map(code => codeToKey(code))
   }
+
 
   def index = Action {
     Ok(views.html.startExport())
@@ -104,6 +129,21 @@ class Application extends Controller {
   def getProgress(processId: String) = Action {
     val progressArray = DBLogReader.readProgress(processId)
     Ok(toJson(progressArray))
+  }
+
+  def getArchiveFileName(processId: String) = Action {
+    Ok(ProcessResult.getFileName(processId))
+  }
+
+  def getFile(processId: String) = Action {
+    ProcessResult.getProcessResult(processId) match {
+      case Some(fileName) =>
+        info(s"send file $fileName")
+        Ok.sendFile(new File(fileName))
+      case None =>
+        info(s"file not found. processId = $processId")
+        Ok
+    }
   }
 
 }

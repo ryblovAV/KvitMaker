@@ -11,6 +11,7 @@ object SQLBuilder {
        |  process_id  varchar2(100),
        |  code        varchar2(500),
        |  dt          date default sysdate,
+       |  dt_start    date default sysdate,
        |  message     varchar2(4000)
        |)
      """.stripMargin
@@ -36,6 +37,6 @@ object SQLBuilder {
        """.stripMargin
 
   def queryProgress =
-    s"select code, to_char(dt,'DD.MM.YYYY HH24:MI:SS') as dt, message from $journalTableName where process_id = ?"
+    s"select code, to_char(dt_start,'DD.MM.YYYY HH24:MI:SS') as dt_start, to_char(dt,'DD.MM.YYYY HH24:MI:SS') as dt, message from $journalTableName where process_id = ?"
 
 }

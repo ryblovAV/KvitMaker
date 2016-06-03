@@ -1,18 +1,20 @@
 package engine
 
-import java.util.{Map => JMap}
+import java.util.{ArrayList => JArrayList}
 
-import models.Kvit._
-
-import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
 object Utl {
 
-  def createKvit(postal: Int, address: Int, id: Int): JMap[String, String] = {
-    Map(POSTAL -> s"postal_$postal",
-        ADDRESS_SHORT -> s"address_$address",
-        ID -> id.toString).asJava
+  def createKvit(postal: Int, address: Int, id: Int): JArrayList[String] = {
+
+    val l = new JArrayList[String]()
+
+    l.add("01")
+    l.add(s"postal_$postal")
+    l.add(s"address_$address")
+
+    l
   }
 
 }

@@ -54,6 +54,7 @@
                     <thead>
                         <tr>
                             <th>Code base</th>
+                            <th>DateStart</th>
                             <th>Date</th>
                             <th>Message</th>
                             <th></th>
@@ -62,11 +63,16 @@
                     <tbody ng-repeat="progress in progressArray">
                         <tr>
                             <td>{{progress.code}}</td>
+                            <td>{{progress.dtStart}}</td>
                             <td>{{progress.dt}}</td>
                             <td>{{progress.message}}</td>
                         </tr>
                     </tbody>
                 </table>
+
+                <p>{{ archiveMessage }}</p>
+                <button class="btn btn-default" ng-disabled="getArchiveDisabled" ng-click="getArchive()">Archive</button>
+
             </div>
         </div>
     </div>

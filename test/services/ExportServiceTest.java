@@ -9,6 +9,7 @@ import services.parameters.MkdChs;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<Map<String, String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.LESK, "13");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.LESK, "13");
 
         assertTrue(bills.size() > 30_000);
     }
@@ -60,7 +61,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<Map<String, String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.LESK, "13");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.LESK, "13");
 
         assertTrue(bills.size() > 25_000);
     }
@@ -70,7 +71,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<Map<String, String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.GESK, "88");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.GESK, "88");
 
         assertTrue(bills.size() > 30_000);
     }
@@ -80,7 +81,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<Map<String, String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.GESK, "43");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.GESK, "43");
 
         assertTrue(bills.size() > 1_000);
     }

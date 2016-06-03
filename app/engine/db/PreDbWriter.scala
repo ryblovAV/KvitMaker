@@ -21,9 +21,10 @@ object PreDBWriter {
       }
     }
 
-    def createTabel(conn: Connection) = {
+    def createTable(conn: Connection) = {
       val st = conn.createStatement()
       try {
+        info("start create table")
         st.executeUpdate(SQLBuilder.createTableJournal)
         st.executeUpdate(SQLBuilder.createPKJournal)
         info("create table complete")
@@ -36,7 +37,7 @@ object PreDBWriter {
       val conn = DriverManager.getConnection(DBConfig.url, DBConfig.username, DBConfig.password)
       try {
         if (!checkExists(conn)) {
-          createTabel(conn)
+          createTable(conn)
         }
       } finally {
         if (conn != null) conn.close

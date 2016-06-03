@@ -3,11 +3,11 @@ package engine
 import org.scalatest.FunSuite
 
 import Utl._
-import java.util.{Map => JMap}
+import java.util.{ArrayList => JArrayList}
 
 class GroupTest extends FunSuite {
 
-  def fill(cntPostal: Int, cntAddress: Int, cnt: Int):List[JMap[String,String]] = {
+  def fill(cntPostal: Int, cntAddress: Int, cnt: Int):List[JArrayList[String]] = {
     (0 until cntPostal).flatMap(postal =>
       (0 until cntAddress).flatMap(address =>
         (0 until cnt).map(i =>
