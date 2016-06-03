@@ -1,5 +1,7 @@
 package config
 
+import java.text.SimpleDateFormat
+
 object AppConfig {
   val countPartition = 8
   val partition = 1000
@@ -11,5 +13,7 @@ object AppConfig {
   val BODY_TAG = "<BODY>"
   val MERGE_TAG = "<MERGE>"
   val COUNT_ALL_TAG = "<COUNT_ALL>"
+
+  val df = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy")
 
 }

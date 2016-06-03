@@ -5,7 +5,7 @@ import java.util.Calendar
 
 import engine.db.{DBLogReader, DBLogWriter, ProgressInfo}
 import engine.file.FileEngine
-import engine.{ActiveCodeStorage, ExportEngine, MessageBuilder, ProcessResult}
+import engine._
 import models.StartExportAttr
 import play.Logger._
 import play.api.libs.functional.syntax._
@@ -55,16 +55,16 @@ class Application extends Controller {
 
   def startProcess = Action(parse.json) {
     request => {
-      info("------------------ start process" + Calendar.getInstance().getTime.toString)
+      info("------------------ start process" + Calendar.getInstance().getTime.toString + " ip: " + request.remoteAddress)
       request.body.validate[StartExportAttr].map {
         case attr: StartExportAttr =>
-          val filterCodeArray = checkActiveKey(attr.codeArray, attr.key)
+          val processId = Calendar.getInstance().getTimeInMillis().toString
+          val filterCodeArray = checkActiveKey(attr.codeArray, attr.key, ip = request.remoteAddress, processId = processId)
 
           if (!filterCodeArray.isEmpty) {
             info(s"find repeat code ${filterCodeArray.mkString(";")}")
             Ok(toJson(ExportResultInfo(processId = "", error = MessageBuilder.repeatCodeMessage(filterCodeArray))))
           } else {
-            val processId = Calendar.getInstance().getTimeInMillis().toString
 
               info(s"start processId = $processId")
 
@@ -82,7 +82,14 @@ class Application extends Controller {
               f.onComplete(r => r match {
                 case Success(s) =>
                   info(s"processId = $processId complete: ${Calendar.getInstance().getTime} ${logResult(s)}")
-                  ProcessResult.addProcessResult(processId,FileEngine.makeZip(processId))
+                  ProcessResultStorage.addProcessResult(
+                    processId = processId,
+                    ProcessResult(
+                      processId = processId,
+                      fileName = FileEngine.makeZip(processId),
+                      ip = request.remoteAddress,
+                      codeArray = attr.codeArray)
+                  )
                 case Failure(e) =>
                   error(e.toString)
                   Ok(toJson(ExportResultInfo(processId,e.getMessage)))
@@ -100,12 +107,12 @@ class Application extends Controller {
     }
   }
 
-  def checkActiveKey(codeArray: Array[String], codeToKey: String => String) = {
+  def checkActiveKey(codeArray: Array[String], codeToKey: String => String, ip: String, processId: String) = {
     info(s"codeArray = ${codeArray.mkString(";")}")
     info(s"activeKey before = ${ActiveCodeStorage.toString}")
     val codeInActive = codeArray.filter(code => ActiveCodeStorage.check(code, codeToKey))
     if (codeInActive.isEmpty)
-      ActiveCodeStorage.add(codeArray,codeToKey)
+      ActiveCodeStorage.add(codeArray,codeToKey,ip,processId)
 
     info(s"codeInActive: ${codeInActive.mkString(";")}")
     info(s"activeKey after= ${ActiveCodeStorage.toString}")
@@ -122,18 +129,27 @@ class Application extends Controller {
   }
 
   def getArchiveFileName(processId: String) = Action {
-    Ok(ProcessResult.getFileName(processId))
+    Ok(ProcessResultStorage.getFileName(processId))
   }
 
   def getFile(processId: String) = Action {
-    ProcessResult.getProcessResult(processId) match {
+    ProcessResultStorage.getFileNameOpt(processId) match {
       case Some(fileName) =>
-        info(s"send file $fileName")
+        info(s"processId = $processId, send file $fileName")
         Ok.sendFile(new File(fileName))
       case None =>
-        info(s"file not found. processId = $processId")
-        Ok
+        info(s"processId = $processId, file not found. processId = $processId")
+        NotFound
     }
   }
+
+  def getProcesses = Action {
+    Ok(views.html.listProcesses(ProcessResultStorage.getProcesses))
+  }
+
+  def getActives = Action {
+    Ok(views.html.listActiveCode(ActiveCodeStorage.listActiveCode))
+  }
+
 
 }

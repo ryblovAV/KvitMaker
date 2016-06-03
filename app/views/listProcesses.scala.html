@@ -1,0 +1,35 @@
+@import engine.ProcessResult
+@(processResults: Seq[ProcessResult])
+
+@base {
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Code</th>
+                            <th>IP adress</th>
+                            <th>File name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @processResults.map { result =>
+                            <tr>
+                                <td>@result.date</td>
+                                <td>@result.codeArray.mkString(";")</td>
+                                <td>@result.ip</td>
+                                <td>
+                                    <a href='@routes.Application.getFile(result.processId)'>@result.fileName</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+}
