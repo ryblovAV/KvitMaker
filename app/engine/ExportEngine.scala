@@ -25,7 +25,7 @@ object ExportEngine {
                      removeFromActiveKey: String => Unit
                     ) = {
     Future {
-      info(s"start partition codeArray:${codeArray.mkString(";)}")
+      info(s"start partition codeArray:${codeArray.mkString(";")}")
       codeArray.map(code =>
         DBReader.readBillsFromDb(
           dt,mkdChs,cisDivision,code,dbLogWriter,removeFromActiveKey)

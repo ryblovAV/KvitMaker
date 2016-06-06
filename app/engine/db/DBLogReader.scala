@@ -15,16 +15,20 @@ object DBLogReader {
 
   def readProgress(processId: String) = synchronized {
     val st = conn.prepareStatement(SQLBuilder.queryProgress)
-    st.setString(1,processId)
-    val rs = st.executeQuery()
-
     val progress = ArrayBuffer.empty[ProgressInfo]
-    while (rs.next()) {
-      progress += ProgressInfo(
-        code = rs.getString(1),
-        dtStart = rs.getString(2),
-        dt = rs.getString(3),
-        message = rs.getString(4))
+    try {
+      st.setString(1,processId)
+      val rs = st.executeQuery()
+
+      while (rs.next()) {
+        progress += ProgressInfo(
+          code = rs.getString(1),
+          dtStart = rs.getString(2),
+          dt = rs.getString(3),
+          message = rs.getString(4))
+      }
+    } finally {
+      if (st != null) st.close()
     }
     progress
   }

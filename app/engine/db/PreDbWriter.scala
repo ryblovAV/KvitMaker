@@ -8,7 +8,7 @@ import play.Logger._
 
 object PreDBWriter {
 
-  def preLoadJournal() = {
+  def preLoadProgressJournal() = {
 
     def checkExists(conn: Connection) = {
       val st = conn.prepareStatement(SQLBuilder.checkExistsTable)
@@ -17,7 +17,7 @@ object PreDBWriter {
         val rs = st.executeQuery()
         rs.next()
       } finally {
-        st.close()
+        if (st != null) st.close()
       }
     }
 
@@ -29,7 +29,7 @@ object PreDBWriter {
         st.executeUpdate(SQLBuilder.createPKJournal)
         info("create table complete")
       } finally {
-        st.close()
+        if (st != null) st.close()
       }
     }
 
