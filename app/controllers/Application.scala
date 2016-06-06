@@ -3,7 +3,7 @@ package controllers
 import java.io.File
 import java.util.Calendar
 
-import engine.db.{DBLogReader, DBLogWriter, ProgressInfo}
+import engine.db._
 import engine.file.FileEngine
 import engine._
 import models.StartExportAttr
@@ -82,8 +82,7 @@ class Application extends Controller {
               f.onComplete(r => r match {
                 case Success(s) =>
                   info(s"processId = $processId complete: ${Calendar.getInstance().getTime} ${logResult(s)}")
-                  ProcessResultStorage.addProcessResult(
-                    processId = processId,
+                  ProcessResultDBStorage.addProcessResult(
                     ProcessResult(
                       processId = processId,
                       fileName = FileEngine.makeZip(processId),
@@ -129,11 +128,11 @@ class Application extends Controller {
   }
 
   def getArchiveFileName(processId: String) = Action {
-    Ok(ProcessResultStorage.getFileName(processId))
+    Ok(ProcessResultDBStorage.getFileName(processId))
   }
 
   def getFile(processId: String) = Action {
-    ProcessResultStorage.getFileNameOpt(processId) match {
+    ProcessResultDBStorage.getFileNameOpt(processId) match {
       case Some(fileName) =>
         info(s"processId = $processId, send file $fileName")
         Ok.sendFile(new File(fileName))
@@ -144,7 +143,7 @@ class Application extends Controller {
   }
 
   def getProcesses = Action {
-    Ok(views.html.listProcesses(ProcessResultStorage.getProcesses))
+    Ok(views.html.listProcesses(ProcessResultDBStorage.getProcesses))
   }
 
   def getActives = Action {

@@ -4,6 +4,8 @@ object SQLBuilder {
 
   val journalTableName = "cm_make_kvit_journal"
 
+  val historyTableName = "cm_kvit_history"
+
   def createTableJournal =
     s"""
        |create table $journalTableName
@@ -18,6 +20,21 @@ object SQLBuilder {
 
   def createPKJournal =
     s"alter table $journalTableName add constraint PK_$journalTableName primary key (process_id, code)"
+
+  def createTableHistory =
+    s"""
+       |create table $historyTableName
+       |(
+       |  process_id  varchar2(100),
+       |  fileName    varchar2(1000),
+       |  ip          varchar2(30),
+       |  dt          date default sysdate,
+       |  codeArray   varchar2(500)
+       |)
+     """.stripMargin
+
+  def createPKHistory =
+    s"alter table $historyTableName add constraint pk_$historyTableName primary key (process_id)"
 
   def checkExistsTable =
     s"select t.table_name from user_tables t where t.table_name = upper(?)"
@@ -38,5 +55,20 @@ object SQLBuilder {
 
   def queryProgress =
     s"select code, to_char(dt_start,'DD.MM.YYYY HH24:MI:SS') as dt_start, to_char(dt,'DD.MM.YYYY HH24:MI:SS') as dt, message from $journalTableName where process_id = ?"
+
+  def queryHistory =
+    s"select process_id, fileName, ip, dt, codeArray from $historyTableName"
+
+  def queryHistoryById =
+    s"select process_id, fileName, ip, dt, codeArray from $historyTableName where process_id = ?"
+
+
+  def messageHistory =
+    s"""
+       |insert into $historyTableName
+       |(process_id, fileName, ip, dt, codeArray)
+       |values
+       |(?,?,?,?,?)
+     """.stripMargin
 
 }

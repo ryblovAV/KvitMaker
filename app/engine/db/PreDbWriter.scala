@@ -8,12 +8,12 @@ import play.Logger._
 
 object PreDBWriter {
 
-  def preLoadProgressJournal() = {
+  def createTable(tableName: String, createTableSql: Seq[String]) = {
 
-    def checkExists(conn: Connection) = {
+    def checkExists(conn: Connection, tableName: String) = {
       val st = conn.prepareStatement(SQLBuilder.checkExistsTable)
       try {
-        st.setString(1, SQLBuilder.journalTableName)
+        st.setString(1, tableName)
         val rs = st.executeQuery()
         rs.next()
       } finally {
@@ -21,12 +21,11 @@ object PreDBWriter {
       }
     }
 
-    def createTable(conn: Connection) = {
+    def createTable(conn: Connection, createTableSql: Seq[String]) = {
       val st = conn.createStatement()
       try {
         info("start create table")
-        st.executeUpdate(SQLBuilder.createTableJournal)
-        st.executeUpdate(SQLBuilder.createPKJournal)
+        createTableSql.foreach(sql => st.executeUpdate(sql))
         info("create table complete")
       } finally {
         if (st != null) st.close()
@@ -36,12 +35,20 @@ object PreDBWriter {
       Class.forName(DBConfig.driver)
       val conn = DriverManager.getConnection(DBConfig.url, DBConfig.username, DBConfig.password)
       try {
-        if (!checkExists(conn)) {
-          createTable(conn)
+        if (!checkExists(conn, tableName)) {
+          createTable(conn,createTableSql)
         }
       } finally {
         if (conn != null) conn.close
       }
+  }
+
+  def preLoadProgressJournal = {
+    createTable(SQLBuilder.journalTableName, Seq(SQLBuilder.createTableJournal, SQLBuilder.createPKJournal))
+  }
+
+  def preLoadHistoryJournal = {
+    createTable(SQLBuilder.historyTableName, Seq(SQLBuilder.createTableHistory, SQLBuilder.createPKHistory))
   }
 
 }

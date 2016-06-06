@@ -1,4 +1,4 @@
-@import engine.ProcessResult
+@import engine.db.ProcessResult
 @(processResults: Seq[ProcessResult])
 
 @base {
@@ -12,6 +12,7 @@
                             <th>Code</th>
                             <th>IP adress</th>
                             <th>File name</th>
+                            <th>id</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -23,6 +24,7 @@
                                 <td>
                                     <a href='@routes.Application.getFile(result.processId)'>@result.fileName</a>
                                 </td>
+                                <td>@result.processId</td>
                             </tr>
                         }
                     </tbody>

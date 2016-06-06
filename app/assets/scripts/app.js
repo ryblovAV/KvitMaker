@@ -58,6 +58,7 @@
                             $scope.message = result.error;
                         } else {
                             console.log(result);
+                            $scope.archiveMessage = "Выполняется процесс выгрузки (id = " + result.processId + ")";
                             $scope.processId = result.processId;
                         }
                     })
