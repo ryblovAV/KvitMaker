@@ -25,7 +25,7 @@ public final class ExportService {
     private final SqlScript script;
 
     public ExportService(Connection connection) throws SQLException, IOException {
-        script = new SqlScript(new File("config//queries//script.sql"), connection);
+        script = new SqlScript(new File("conf//queries//script.sql"), connection);
     }
 
     private List<ArrayList<String>> fillData(ResultSet resultSet) throws SQLException {
