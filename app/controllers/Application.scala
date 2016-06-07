@@ -3,9 +3,9 @@ package controllers
 import java.io.File
 import java.util.Calendar
 
+import engine._
 import engine.db._
 import engine.file.FileEngine
-import engine._
 import models.StartExportAttr
 import play.Logger._
 import play.api.libs.functional.syntax._
@@ -58,8 +58,12 @@ class Application extends Controller {
       info("------------------ start process" + Calendar.getInstance().getTime.toString + " ip: " + request.remoteAddress)
       request.body.validate[StartExportAttr].map {
         case attr: StartExportAttr =>
+
           val processId = Calendar.getInstance().getTimeInMillis().toString
-          val filterCodeArray = checkActiveKey(attr.codeArray, attr.key, ip = request.remoteAddress, processId = processId)
+
+          val codeArray = if (attr.isFindByPremiseId) DBReader.getPremiseCode(attr.mkdPremiseId) else attr.codeArray
+
+          val filterCodeArray = checkActiveKey(codeArray, attr.key, ip = request.remoteAddress, processId = processId)
 
           if (!filterCodeArray.isEmpty) {
             info(s"find repeat code ${filterCodeArray.mkString(";")}")
@@ -69,7 +73,7 @@ class Application extends Controller {
               info(s"start processId = $processId")
 
               val f = ExportEngine.start(
-                mkdPremiseId = attr.premId,
+                mkdPremiseId = attr.mkdPremiseId,
                 dt = attr.dt,
                 mkdChs = attr.mkdChs,
                 cisDivision = attr.cisDivision,
@@ -87,7 +91,11 @@ class Application extends Controller {
                       processId = processId,
                       fileName = FileEngine.makeZip(processId),
                       ip = request.remoteAddress,
-                      codeArray = attr.codeArray)
+                      codeArray = codeArray,
+                      month = attr.month,
+                      mkdType = attr.mkdType,
+                      mkdPremiseId = attr.mkdPremiseId
+                    )
                   )
                 case Failure(e) =>
                   error(e.toString)

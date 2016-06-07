@@ -6,7 +6,7 @@ import engine.SQLBuilder
 
 class DBLogWriter(processId: String) {
 
-  PreDBWriter.preLoadProgressJournal()
+  PreDBWriter.preLoadProgressJournal
 
   def log(code: String)(conn: Connection, message: String):Unit  = {
     val st = conn.prepareStatement(SQLBuilder.messageJournal)

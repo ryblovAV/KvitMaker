@@ -6,7 +6,6 @@ import config.AppConfig
 import models.Kvit._
 import play.Logger._
 
-import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
 object GroupEngine {
@@ -42,18 +41,18 @@ object GroupEngine {
       .reverse
   }
 
-  def group(bills: Seq[(JArrayList[String], Int)], partitionCnt: Int) = {
+  def group(bills: List[(JArrayList[String], Int)], partitionCnt: Int) = {
     bills
       .groupBy(attrByIndex(_, POSTAL_INDEX))
       .values
-      .toSeq
+      .toList
       .sortBy(index)
       .flatMap(listPostal => splitByPartition(listPostal.toList, partitionCnt = partitionCnt))
   }
 
-  def run(bills: JList[JArrayList[String]]): Seq[List[JArrayList[String]]] = {
+  def run(bills: List[JArrayList[String]]): List[List[JArrayList[String]]] = {
     info(s"start grouping size = ${bills.size}")
-    group(bills = bills.asScala.zipWithIndex, partitionCnt = AppConfig.partition)
+    group(bills = bills.zipWithIndex, partitionCnt = AppConfig.partition)
   }
 
 }

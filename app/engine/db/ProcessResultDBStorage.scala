@@ -12,7 +12,11 @@ case class ProcessResult(processId: String,
                          fileName: String,
                          ip:String,
                          dt:Date = Calendar.getInstance().getTime,
-                         codeArray: Array[String]) {
+                         codeArray: Array[String],
+                         month: Int,
+                         mkdType :String,
+                         mkdPremiseId: String
+                        ) {
   def date: String = AppConfig.df.format(dt)
 }
 
@@ -28,7 +32,10 @@ object ProcessResultDBStorage {
         fileName = rs.getString(2),
         ip = rs.getString(3),
         dt = rs.getDate(4),
-        codeArray = rs.getString(5).split(";")
+        codeArray = rs.getString(5).split(";"),
+        mkdPremiseId = rs.getString(6),
+        month = rs.getInt(7),
+        mkdType = rs.getString(8)
       )
   }
 
@@ -105,6 +112,9 @@ object ProcessResultDBStorage {
         st.setString(3, result.ip)
         st.setDate(4, new SQLDate(result.dt.getTime))
         st.setString(5, result.codeArray.mkString(";"))
+        st.setString(6, result.mkdPremiseId)
+        st.setInt(7, result.month)
+        st.setString(8, result.mkdType)
         st.executeUpdate()
 
       } finally {

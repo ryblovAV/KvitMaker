@@ -1,6 +1,6 @@
 package engine
 
-import java.util.Date
+import java.util.{Date, ArrayList => JArrayList}
 
 import config.AppConfig
 import engine.db.{DBLogWriter, DBReader}
@@ -8,39 +8,40 @@ import engine.file.FileEngine
 import play.Logger._
 import services.parameters.{CisDivision, MkdChs}
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.implicitConversions
+import scala.util.Try
 
 object ExportEngine {
 
 
   def startPartition(processId: String,
+                     read: String => Try[List[JArrayList[String]]],
                      codeArray: Array[String],
                      dt: Date,
                      mkdChs: MkdChs,
                      cisDivision: CisDivision,
-                     dbLogWriter: DBLogWriter,
-                     removeFromActiveKey: String => Unit
-                    ) = {
+                     createPath: (String) => String,
+                     createCSVFileName: (String, Int) => String): Future[Array[Try[List[String]]]] = {
     Future {
       info(s"start partition codeArray:${codeArray.mkString(";")}")
       codeArray.map(code =>
-        DBReader.readBillsFromDb(
-          dt,mkdChs,cisDivision,code,dbLogWriter,removeFromActiveKey)
-        .map(bills => GroupEngine.run(bills))
-        .map(groupBills => FileEngine.makeAllFile(
-                processId,
-                mkdChs,
-                cisDivision,
-                code,
-                dt,
-                groupBills.map(_.asJava).asJava))
-        )
+        read(code)
+          .map(bills => GroupEngine.run(bills))
+          .map(groupBills =>
+            FileEngine.makeAllFile(
+              processId,
+              mkdChs,
+              code,
+              dt,
+              createPath,
+              createCSVFileName,
+              groupBills)
+          )
+      )
     }
   }
-
 
   def start(processId: String,
             mkdPremiseId: String,
@@ -52,24 +53,45 @@ object ExportEngine {
             removeFromActiveKey: String => Unit
            ) = {
 
+    def readByCode(dt: Date,
+                   mkdChs: MkdChs,
+                   cisDivision: CisDivision,
+                   dbLogWriter: DBLogWriter,
+                   removeFromActiveKey: String => Unit)
+                  (code: String): Try[List[JArrayList[String]]] = {
+      DBReader.readBillsFromDb(dt, mkdChs, cisDivision, code, dbLogWriter, removeFromActiveKey)
+    }
 
+    def readByPremiseId(dt: Date,
+                        mkdPremiseId: String,
+                        removeFromActiveKey: String => Unit)
+                       (code: String): Try[List[JArrayList[String]]] = {
+      DBReader.readBillsFromDb(
+        dt = dt,
+        mkdPremiseId = mkdPremiseId,
+        code = code,
+        removeFromActiveKey = removeFromActiveKey)
+    }
 
     val n = if (codeArray.size < AppConfig.countPartition) 1 else codeArray.size / AppConfig.countPartition
 
     info(s"codeArray.size = ${codeArray.size}, countPartition = ${AppConfig.countPartition}, n = $n")
 
+
     val l = codeArray
       .grouped(n)
       .map(
         codeArray => startPartition(
-          processId,
-          codeArray,
-          dt,
-          mkdChs,
-          cisDivision,
-          dbLogWriter,
-          removeFromActiveKey)
-    )
+          processId = processId,
+          read = if (!mkdPremiseId.isEmpty) readByPremiseId(dt, mkdPremiseId, removeFromActiveKey) else readByCode(dt, mkdChs, cisDivision, dbLogWriter, removeFromActiveKey),
+          codeArray = codeArray,
+          dt = dt,
+          mkdChs = mkdChs,
+          cisDivision = cisDivision,
+          createPath = if (!mkdPremiseId.isEmpty) FileNameBuilder.createPremisePath(processId, mkdChs, cisDivision) else FileNameBuilder.createPath(processId, mkdChs, cisDivision),
+          createCSVFileName = if (!mkdPremiseId.isEmpty) FileNameBuilder.createPremiseCSVFileName(mkdChs) else FileNameBuilder.createCSVFileName(mkdChs)
+        )
+      )
 
     Future.sequence(l.toList)
   }

@@ -8,23 +8,27 @@
                 <table class="table table-condensed">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Code</th>
+                            <th>Дата запуска</th>
                             <th>IP adress</th>
+                            <th>Месяц</th>
+                            <th>Коды участков</th>
+                            <th>Тип</th>
+                            <th>ID МКД</th>
                             <th>File name</th>
-                            <th>id</th>
                         </tr>
                     </thead>
                     <tbody>
                         @processResults.map { result =>
                             <tr>
                                 <td>@result.date</td>
-                                <td>@result.codeArray.mkString(";")</td>
                                 <td>@result.ip</td>
+                                <td>@result.month</td>
+                                <td>@result.codeArray.mkString(";")</td>
+                                <td>@result.mkdType</td>
+                                <td>@result.mkdPremiseId</td>
                                 <td>
                                     <a href='@routes.Application.getFile(result.processId)'>@result.fileName</a>
                                 </td>
-                                <td>@result.processId</td>
                             </tr>
                         }
                     </tbody>

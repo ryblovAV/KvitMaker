@@ -25,11 +25,14 @@ object SQLBuilder {
     s"""
        |create table $historyTableName
        |(
-       |  process_id  varchar2(100),
-       |  fileName    varchar2(1000),
-       |  ip          varchar2(30),
-       |  dt          date default sysdate,
-       |  codeArray   varchar2(500)
+       |  process_id      varchar2(100),
+       |  file_name       varchar2(1000),
+       |  ip              varchar2(30),
+       |  dt              date default sysdate,
+       |  code_array      varchar2(500),
+       |  mkd_premise_id  varchar2(30),
+       |  month           number,
+       |  mkd_type        varchar2(10)
        |)
      """.stripMargin
 
@@ -57,18 +60,21 @@ object SQLBuilder {
     s"select code, to_char(dt_start,'DD.MM.YYYY HH24:MI:SS') as dt_start, to_char(dt,'DD.MM.YYYY HH24:MI:SS') as dt, message from $journalTableName where process_id = ?"
 
   def queryHistory =
-    s"select process_id, fileName, ip, dt, codeArray from $historyTableName"
+    s"select process_id, file_name, ip, dt, code_array, mkd_premise_id, month, mkd_type from $historyTableName"
 
   def queryHistoryById =
-    s"select process_id, fileName, ip, dt, codeArray from $historyTableName where process_id = ?"
+    s"select process_id, file_name, ip, dt, code_array, mkd_premise_id, month, mkd_type from $historyTableName where process_id = ?"
 
 
   def messageHistory =
     s"""
        |insert into $historyTableName
-       |(process_id, fileName, ip, dt, codeArray)
+       |(process_id, file_name, ip, dt, code_array, mkd_premise_id, month, mkd_type)
        |values
-       |(?,?,?,?,?)
+       |(?,?,?,?,?,?,?,?)
      """.stripMargin
+
+  def queryPremiseCode =
+    "select p.state from rusadm.ci_prem p where p.prem_id = ?"
 
 }

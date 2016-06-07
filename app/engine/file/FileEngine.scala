@@ -1,72 +1,43 @@
 package engine.file
 
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.{Date, ArrayList => JArrayList, List => JList}
 
 import config.AppConfig
-import engine.RegistryBuilder
+import engine.{FileNameBuilder, RegistryBuilder}
 import org.apache.commons.io.FileUtils
 import org.zeroturnaround.zip.ZipUtil
 import play.Logger._
-import services.parameters.{CisDivision, MkdChs}
-
-import scala.collection.JavaConverters._
+import services.parameters.MkdChs
 
 object FileEngine {
 
-  val df = new SimpleDateFormat("MM.yyyy")
-
-  def numToStr(num: Int) = if (num == 0) "" else s"_$num"
-
-  def mkdToStr(mkdChs: MkdChs) = mkdChs match {
-    case MkdChs.MKD => "_mkd"
-    case _ => ""
-  }
-
-  def cisDivisionToStr(cisDivision: CisDivision) = cisDivision match {
-    case CisDivision.GESK => "GESK"
-    case CisDivision.LESK => "LESK"
-  }
-
-  def rootPath(processId: String) = s"data//$processId"
-
-  def rootPathSource(processId: String) = s"${rootPath(processId)}//source"
-
-  def arhivePath(processId: String) = s"${rootPath(processId)}//archive_$processId.zip"
-
   def makeZip(processId: String) = {
 
-    val archivePath = arhivePath(processId)
+    val archivePath = FileNameBuilder.arhivePath(processId)
     info(s"start make archive, processId = $processId")
     ZipUtil.pack(
-      new File(rootPathSource(processId)),
+      new File(FileNameBuilder.rootPathSource(processId)),
       new File(archivePath)
     )
     info(s"complete make archive, processId = $processId")
     archivePath
   }
 
-
-  def createPath(rootPath: String,
-                 mkdChs: MkdChs,
-                 cisDivision: CisDivision,
-                 code: String,
-                 processId: String) = s"$rootPath//Ab${mkdToStr(mkdChs)}_${cisDivisionToStr(cisDivision)}_${code}_$processId"
-
   def makeAllFile(processId: String,
                   mkdChs: MkdChs,
-                  cisDivision: CisDivision,
                   code: String,
                   dt: Date,
-                  groupBills: JList[JList[JArrayList[String]]]
+                  createPath: (String) => String,
+                  createCSVFileName: (String, Int) => String,
+                  groupBills: List[List[JArrayList[String]]]
                  ) = {
 
     info(s"processId = $processId, start make files code = $code")
 
-    val path = createPath(rootPathSource(processId),mkdChs,cisDivision,code,processId)
+    val path = createPath(code)
 
-    val registry = RegistryBuilder.makeRegistry(groupBills.asScala.map(_.asScala.toList).toList)
+    val registry = RegistryBuilder.makeRegistry(groupBills)
 
     registry.zipWithIndex.foreach{
         case (r,index) =>
@@ -74,7 +45,7 @@ object FileEngine {
           ExcelEngine.fillData(code = code, mkd = mkdChs, registryData = r, file = xlsxFile)
     }
 
-    val fullRegistryFile = makeFullRegistryFile(code = code,dt = dt, path = path)
+    val fullRegistryFile = makeFullRegistryFile(dt = dt, path = path)
 
     ExcelEngine.fillData(
       code = code,
@@ -82,33 +53,24 @@ object FileEngine {
       registryData = registry.flatMap(l => l.toList),
       file = fullRegistryFile)
 
-    groupBills.asScala.toList.zipWithIndex.map {
+    groupBills.zipWithIndex.map {
       case (bills, index) =>
         makeCSVFile(
-            processId = processId,
-            mkdChs = mkdChs,
-            cisDivision = cisDivision,
             code = code,
-            dt = dt,
             num = index,
             path = path,
-            bills = bills.asScala.toList)
+            createFileName = createCSVFileName,
+            bills = bills)
     }
-
-
   }
 
-  def makeCSVFile(processId: String,
-                  mkdChs: MkdChs,
-                  cisDivision: CisDivision,
-                  code: String,
-                  dt: Date,
+  def makeCSVFile(code: String,
                   num: Int,
                   path: String,
+                  createFileName: (String, Int) => String,
                   bills: List[JArrayList[String]]) = {
 
-
-    val filePath = s"$path//Ab${mkdToStr(mkdChs)}_${code}${numToStr(num)}.csv"
+    val filePath = s"$path//${createFileName(code, num)}"
 
     (new File(path)).mkdirs()
 
@@ -125,16 +87,14 @@ object FileEngine {
 
   def makeRegistryFile(code: String, dt: Date, num: Int, path: String) = {
 
-    val filePath = s"$path//reestr_${df.format(dt)}_${code}${numToStr(num)}_.xlsx"
+    val filePath = s"$path//${FileNameBuilder.createRegistryFileName(code,dt,num)}"
 
     makeFileFromTemplate(filePath = filePath)
   }
 
-  def makeFullRegistryFile(code: String, dt: Date, path: String) = {
-    val filePath = s"$path//reestr_${df.format(dt)}_full_.xlsx"
+  def makeFullRegistryFile(dt: Date, path: String) = {
+    val filePath = s"$path//${FileNameBuilder.createFullRegistryFileName(dt)}"
     makeFileFromTemplate(filePath = filePath)
   }
-
-
 
 }

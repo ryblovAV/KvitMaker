@@ -8,7 +8,7 @@ case class StartExportAttr(month: Int,
                            year: Int,
                            mkdType: String,
                            division: String,
-                           premId: String,
+                           mkdPremiseId: String,
                            codeArrayStr: String) {
   def dt = {
     val calendar = Calendar.getInstance
@@ -25,6 +25,8 @@ case class StartExportAttr(month: Int,
     case "LESK" => CisDivision.LESK
     case "GESK" => CisDivision.GESK
   }
+
+  def isFindByPremiseId = !mkdPremiseId.isEmpty
 
   val codeArray = codeArrayStr.split(";")
 

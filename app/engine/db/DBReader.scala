@@ -1,9 +1,10 @@
 package engine.db
 
 import java.sql.{Connection, DriverManager}
-import java.util.{Date, ArrayList => JArrayList, List => JList, Map => JMap}
+import java.util.{Date, ArrayList => JArrayList, List => JList}
 
 import config.DBConfig
+import engine.SQLBuilder
 import play.Logger._
 import services.ExportService
 import services.parameters.{CisDivision, MkdChs}
@@ -15,6 +16,23 @@ object DBReader {
 
   def log(l: JList[JArrayList[String]]) = {
     l.asScala.map(s => s.asScala.mkString("~")).foreach(info)
+  }
+
+  def getPremiseCode(premId: String): Array[String] = {
+    Class.forName(DBConfig.driver)
+    val conn = DriverManager.getConnection(DBConfig.url, DBConfig.username, DBConfig.password)
+    try {
+      val st = conn.prepareStatement(SQLBuilder.queryHistoryById)
+      try {
+        st.setString(1, premId)
+        val rs = st.executeQuery()
+        if (rs.next) Array(rs.getString(1)) else Array.empty[String]
+      } finally {
+        if (st != null) st.close()
+      }
+    } finally {
+      conn.close()
+    }
   }
 
   private def readFromDb(read: ExportService => JList[JArrayList[String]],
@@ -37,11 +55,18 @@ object DBReader {
     }
   }
 
-  def readBillsFromDb(dt: Date, mkdPremiseId: String): Try[JList[JArrayList[String]]] = {
+  def readBillsFromDb(dt: Date,
+                      mkdPremiseId: String,
+                      code: String,
+                      removeFromActiveKey: String => Unit): Try[List[JArrayList[String]]] = {
     def getBills(dt: Date, mkdPremiseId: String)(service: ExportService) =
       service.getBills(dt, mkdPremiseId)
 
-    readFromDb(read = getBills(dt, mkdPremiseId), writeToLog = (c, s) => ())
+    try {
+      readFromDb(read = getBills(dt, mkdPremiseId), writeToLog = (c, s) => ()).map(l => l.asScala.toList)
+    } finally {
+      removeFromActiveKey(code)
+    }
   }
 
   def readBillsFromDb(dt: Date,
@@ -49,13 +74,13 @@ object DBReader {
                       cisDivision: CisDivision,
                       code: String,
                       dbLogWriter: DBLogWriter,
-                      removeFromActiveKey: String => Unit): Try[JList[JArrayList[String]]] = {
+                      removeFromActiveKey: String => Unit): Try[List[JArrayList[String]]] = {
 
     def getBills(dt: Date, mkdChs: MkdChs, cisDivision: CisDivision, code: String)(service: ExportService) =
       service.getBills(dt, mkdChs, cisDivision, code)
 
     try {
-      readFromDb(read = getBills(dt, mkdChs, cisDivision, code), writeToLog = dbLogWriter.log(code))
+      readFromDb(read = getBills(dt, mkdChs, cisDivision, code), writeToLog = dbLogWriter.log(code)).map(l => l.asScala.toList)
     } finally {
       removeFromActiveKey(code)
     }
