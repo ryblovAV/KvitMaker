@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static play.Logger.debug;
+import static play.Logger.info;
 import static play.Logger.trace;
 
 /**
