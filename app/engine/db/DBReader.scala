@@ -41,13 +41,15 @@ object DBReader {
       Class.forName(DBConfig.driver)
       val conn = DriverManager.getConnection(DBConfig.url, DBConfig.username, DBConfig.password)
       try {
+        info(s"start read bills from db")
         writeToLog(conn, s"start read bills from db")
+
 
         val service = new ExportService(conn)
         val l = read(service)
-        //        log(l)
+//        log(l)
+        info(s"end read bills from db (size = ${l.size()})")
         writeToLog(conn, s"end read bills from db (size = ${l.size()})")
-
         l
       } finally {
         if (conn != null) conn.close

@@ -35,8 +35,11 @@ object FileEngine {
 
     info(s"processId = $processId, start make files code = $code")
     val path = createPath(code)
+    info(s"path  = $path")
 
     val registry = RegistryBuilder.makeRegistry(groupBills)
+
+    info(s"make registry complete: ${registry.length}")
 
     registry.zipWithIndex.foreach{
         case (r,index) =>
@@ -45,6 +48,7 @@ object FileEngine {
     }
 
     val fullRegistryFile = makeFullRegistryFile(dt = dt, path = path)
+    info("make full registry file complete")
 
     ExcelEngine.fillData(
       code = code,
@@ -77,9 +81,11 @@ object FileEngine {
   }
 
   private def makeFileFromTemplate(filePath: String) = {
+    info(s"start makeFileFromTemplate, filePath = $filePath")
     val excelFile = new File(filePath)
     val templateFile = new File(AppConfig.templatePath)
     FileUtils.copyFile(templateFile,excelFile)
+    info("create file complete")
     excelFile
   }
 
