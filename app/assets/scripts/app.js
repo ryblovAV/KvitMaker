@@ -16,7 +16,8 @@
         $scope:processId = "";
         $scope.getArchiveDisabled = true;
         $scope.archiveMessage = "";
-        $scope.saveArchive = true;    
+        $scope.saveArchive = true; 
+        $scope.orderBy = 1;
 
         $scope.submit = function() {
 

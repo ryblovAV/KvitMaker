@@ -48,6 +48,7 @@ object ExportEngine {
             dt: Date,
             mkdChs: MkdChs,
             cisDivision: CisDivision,
+            orderByIndex: Boolean,
             codeArray: Array[String],
             dbLogWriter: DBLogWriter,
             removeFromActiveKey: String => Unit
@@ -56,20 +57,23 @@ object ExportEngine {
     def readByCode(dt: Date,
                    mkdChs: MkdChs,
                    cisDivision: CisDivision,
+                   orderByIndex: Boolean,
                    dbLogWriter: DBLogWriter,
                    removeFromActiveKey: String => Unit)
                   (code: String): Try[List[JArrayList[String]]] = {
-      DBReader.readBillsFromDb(dt, mkdChs, cisDivision, code, dbLogWriter, removeFromActiveKey)
+      DBReader.readBillsFromDb(dt, mkdChs, cisDivision, code, orderByIndex, dbLogWriter, removeFromActiveKey)
     }
 
     def readByPremiseId(dt: Date,
                         mkdPremiseId: String,
+                        orderByIndex: Boolean,
                         removeFromActiveKey: String => Unit)
                        (code: String): Try[List[JArrayList[String]]] = {
       DBReader.readBillsFromDb(
         dt = dt,
         mkdPremiseId = mkdPremiseId,
         code = code,
+        orderByIndex,
         removeFromActiveKey = removeFromActiveKey)
     }
 
@@ -83,7 +87,7 @@ object ExportEngine {
       .map(
         codeArray => startPartition(
           processId = processId,
-          read = if (!mkdPremiseId.isEmpty) readByPremiseId(dt, mkdPremiseId, removeFromActiveKey) else readByCode(dt, mkdChs, cisDivision, dbLogWriter, removeFromActiveKey),
+          read = if (!mkdPremiseId.isEmpty) readByPremiseId(dt, mkdPremiseId, orderByIndex, removeFromActiveKey) else readByCode(dt, mkdChs, cisDivision, orderByIndex, dbLogWriter, removeFromActiveKey),
           codeArray = codeArray,
           dt = dt,
           mkdChs = mkdChs,

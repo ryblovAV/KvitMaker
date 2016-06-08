@@ -60,9 +60,10 @@ object DBReader {
   def readBillsFromDb(dt: Date,
                       mkdPremiseId: String,
                       code: String,
+                      orderByIndex: Boolean,
                       removeFromActiveKey: String => Unit): Try[List[JArrayList[String]]] = {
     def getBills(dt: Date, mkdPremiseId: String)(service: ExportService) =
-      service.getBills(dt, mkdPremiseId)
+      service.getBills(dt, mkdPremiseId, orderByIndex)
 
     try {
       readFromDb(read = getBills(dt, mkdPremiseId), writeToLog = (c, s) => ()).map(l => l.asScala.toList)
@@ -75,11 +76,12 @@ object DBReader {
                       mkdChs: MkdChs,
                       cisDivision: CisDivision,
                       code: String,
+                      orderByIndex: Boolean,
                       dbLogWriter: DBLogWriter,
                       removeFromActiveKey: String => Unit): Try[List[JArrayList[String]]] = {
 
     def getBills(dt: Date, mkdChs: MkdChs, cisDivision: CisDivision, code: String)(service: ExportService) =
-      service.getBills(dt, mkdChs, cisDivision, code)
+      service.getBills(dt, mkdChs, cisDivision, code, orderByIndex)
 
     try {
       readFromDb(read = getBills(dt, mkdChs, cisDivision, code), writeToLog = dbLogWriter.log(code)).map(l => l.asScala.toList)

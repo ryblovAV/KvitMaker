@@ -28,7 +28,8 @@ class Application extends Controller {
       (__ \ 'mkdType).read[String] and
       (__ \ 'division).read[String] and
       (__ \ 'premId).read[String] and
-      (__ \ 'codeArrayStr).read[String]
+      (__ \ 'codeArrayStr).read[String] and
+      (__ \ 'orderByIndex).read[Int]
     ) (StartExportAttr.apply _)
 
   implicit val progressWriters = new Writes[ProgressInfo] {
@@ -80,7 +81,8 @@ class Application extends Controller {
                 codeArray = attr.codeArray,
                 dbLogWriter = new DBLogWriter(processId),
                 processId = processId,
-                removeFromActiveKey = (code => ActiveCodeStorage.removeFromActiveKey(code, attr.key))
+                removeFromActiveKey = (code => ActiveCodeStorage.removeFromActiveKey(code, attr.key)),
+                orderByIndex = attr.orderByIndex
               )
 
               f.onComplete(r => r match {

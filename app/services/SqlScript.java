@@ -22,8 +22,10 @@ final class SqlScript implements AutoCloseable {
 
     private final OracleCallableStatement procedureMkdStatement;
     private final OracleCallableStatement procedureNotMkdStatement;
-    private final OraclePreparedStatement kvitMkdStatement;
-    private final OraclePreparedStatement kvitNotMkdStatement;
+    private final OraclePreparedStatement kvitMkdPostalStatement;
+    private final OraclePreparedStatement kvitMkdStreetStatement;
+    private final OraclePreparedStatement kvitNotMkdPostalStatement;
+    private final OraclePreparedStatement kvitNotMkdStreetStatement;
     private final OraclePreparedStatement organizationStatement;
 
 
@@ -42,15 +44,19 @@ final class SqlScript implements AutoCloseable {
 
         String procedureMkd;
         String procedureNotMkd;
-        String kvitMkd;
-        String kvitNotMkd;
+        String kvitMkdPostal;
+        String kvitMkdStreet;
+        String kvitNotMkdPostal;
+        String kvitNotMkdStreet;
         String organization;
         try {
             StringTokenizer splitter = new StringTokenizer(fileData.toString(), ";");
             procedureMkd = splitter.nextToken();
             procedureNotMkd = splitter.nextToken();
-            kvitMkd = splitter.nextToken();
-            kvitNotMkd = splitter.nextToken();
+            kvitMkdPostal = splitter.nextToken();
+            kvitMkdStreet = splitter.nextToken();
+            kvitNotMkdPostal = splitter.nextToken();
+            kvitNotMkdStreet = splitter.nextToken();
             organization = splitter.nextToken();
         } catch (NoSuchElementException e) {
             throw new IOException("The script file is not valid!");
@@ -58,9 +64,13 @@ final class SqlScript implements AutoCloseable {
 
         procedureMkdStatement = (OracleCallableStatement) connection.prepareCall(procedureMkd);
         procedureNotMkdStatement = (OracleCallableStatement) connection.prepareCall(procedureNotMkd);
-        kvitMkdStatement = (OraclePreparedStatement) connection.prepareStatement(kvitMkd,
+        kvitMkdPostalStatement = (OraclePreparedStatement) connection.prepareStatement(kvitMkdPostal,
                 ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        kvitNotMkdStatement = (OraclePreparedStatement) connection.prepareStatement(kvitNotMkd,
+        kvitMkdStreetStatement = (OraclePreparedStatement) connection.prepareStatement(kvitMkdStreet,
+                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        kvitNotMkdPostalStatement = (OraclePreparedStatement) connection.prepareStatement(kvitNotMkdPostal,
+                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        kvitNotMkdStreetStatement = (OraclePreparedStatement) connection.prepareStatement(kvitNotMkdStreet,
                 ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         organizationStatement = (OraclePreparedStatement) connection.prepareStatement(organization);
     }
@@ -84,23 +94,42 @@ final class SqlScript implements AutoCloseable {
         return procedureNotMkdStatement.executeUpdate();
     }
 
-    ResultSet getKvitMkdCursor(Date date, CisDivision cisDivision, String state, String mkdId) throws SQLException {
+    ResultSet getKvitMkdPostalCursor(Date date, CisDivision cisDivision, String state, String mkdId) throws SQLException {
 
-        kvitMkdStatement.setDateAtName("pdat", date);
-        kvitMkdStatement.setStringAtName("pleskgesk", cisDivision.toString());
-        kvitMkdStatement.setStringAtName("pbd_lesk", state);
-        kvitMkdStatement.setStringAtName("mkd_id", mkdId);
+        kvitMkdPostalStatement.setDateAtName("pdat", date);
+        kvitMkdPostalStatement.setStringAtName("pleskgesk", cisDivision.toString());
+        kvitMkdPostalStatement.setStringAtName("pbd_lesk", state);
+        kvitMkdPostalStatement.setStringAtName("mkd_id", mkdId);
 
-        return kvitMkdStatement.executeQuery();
+        return kvitMkdPostalStatement.executeQuery();
     }
 
-    ResultSet getKvitNotMkdCursor(Date date, CisDivision cisDivision, String state) throws SQLException {
+    ResultSet getKvitMkdStreetCursor(Date date, CisDivision cisDivision, String state, String mkdId) throws SQLException {
 
-        kvitNotMkdStatement.setDateAtName("pdat", date);
-        kvitNotMkdStatement.setStringAtName("pleskgesk", cisDivision.toString());
-        kvitNotMkdStatement.setStringAtName("pbd_lesk", state);
+        kvitMkdStreetStatement.setDateAtName("pdat", date);
+        kvitMkdStreetStatement.setStringAtName("pleskgesk", cisDivision.toString());
+        kvitMkdStreetStatement.setStringAtName("pbd_lesk", state);
+        kvitMkdStreetStatement.setStringAtName("mkd_id", mkdId);
 
-        return kvitNotMkdStatement.executeQuery();
+        return kvitMkdStreetStatement.executeQuery();
+    }
+
+    ResultSet getKvitNotMkdPostalCursor(Date date, CisDivision cisDivision, String state) throws SQLException {
+
+        kvitNotMkdPostalStatement.setDateAtName("pdat", date);
+        kvitNotMkdPostalStatement.setStringAtName("pleskgesk", cisDivision.toString());
+        kvitNotMkdPostalStatement.setStringAtName("pbd_lesk", state);
+
+        return kvitNotMkdPostalStatement.executeQuery();
+    }
+
+    ResultSet getKvitNotMkdStreetCursor(Date date, CisDivision cisDivision, String state) throws SQLException {
+
+        kvitNotMkdStreetStatement.setDateAtName("pdat", date);
+        kvitNotMkdStreetStatement.setStringAtName("pleskgesk", cisDivision.toString());
+        kvitNotMkdStreetStatement.setStringAtName("pbd_lesk", state);
+
+        return kvitNotMkdStreetStatement.executeQuery();
     }
 
     String getOrganization(String state) throws SQLException {
@@ -121,8 +150,8 @@ final class SqlScript implements AutoCloseable {
 
         procedureMkdStatement.close();
         procedureNotMkdStatement.close();
-        kvitMkdStatement.close();
-        kvitNotMkdStatement.close();
+        kvitMkdPostalStatement.close();
+        kvitNotMkdPostalStatement.close();
 //        reestrMkdStatement.close();
 //        reestrNotMkdStatement.close();
         organizationStatement.close();

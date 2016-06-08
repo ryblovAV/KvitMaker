@@ -9,7 +9,8 @@ case class StartExportAttr(month: Int,
                            mkdType: String,
                            division: String,
                            mkdPremiseId: String,
-                           codeArrayStr: String) {
+                           codeArrayStr: String,
+                           orderBy: Int) {
   def dt = {
     val calendar = Calendar.getInstance
     calendar.set(year, month-1, 1)
@@ -31,5 +32,7 @@ case class StartExportAttr(month: Int,
   val codeArray = codeArrayStr.split(";")
 
   def key(code: String) = s"$month~$year~$code"
+
+  def orderByIndex = if (orderBy == 1) true else false
 
 }

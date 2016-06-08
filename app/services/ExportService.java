@@ -51,7 +51,8 @@ public final class ExportService {
         return result;
     }
 
-    public List<ArrayList<String>> getBills(Date month, MkdChs mkdChs, CisDivision cisDivision, String state) throws SQLException {
+    public List<ArrayList<String>> getBills(
+            Date month, MkdChs mkdChs, CisDivision cisDivision, String state, boolean orderByIndex) throws SQLException {
 
         debug("The method getBills was invoked:\n" +
                 "\tDate month <= " + month + "\n" +
@@ -65,16 +66,20 @@ public final class ExportService {
         ResultSet resultSet;
         if (mkdChs == MkdChs.MKD) {
             script.executeProcedureMkd(dbMonth, cisDivision, state, null);
-            resultSet = script.getKvitMkdCursor(dbMonth, cisDivision, state, null);
+            resultSet = orderByIndex ?
+                    script.getKvitMkdPostalCursor(dbMonth, cisDivision, state, null)
+                    : script.getKvitMkdStreetCursor(dbMonth, cisDivision, state, null);
         } else {
             script.executeProcedureNotMkd(dbMonth, cisDivision, state);
-            resultSet = script.getKvitNotMkdCursor(dbMonth, cisDivision, state);
+            resultSet = orderByIndex ?
+                    script.getKvitNotMkdPostalCursor(dbMonth, cisDivision, state)
+                    : script.getKvitNotMkdStreetCursor(dbMonth, cisDivision, state);
         }
 
         return fillData(resultSet);
     }
 
-    public List<ArrayList<String>> getBills(Date month, String mkdPremiseId) throws SQLException {
+    public List<ArrayList<String>> getBills(Date month, String mkdPremiseId, boolean orderByIndex) throws SQLException {
 
         trace("The method getBills was invoked:\n" +
                 "\tDate month <= " + month + "\n" +
@@ -84,7 +89,7 @@ public final class ExportService {
 
         script.executeProcedureMkd(dbMonth, null, null, mkdPremiseId);
 
-        ResultSet resultSet = script.getKvitMkdCursor(dbMonth, null, null, mkdPremiseId);
+        ResultSet resultSet = script.getKvitMkdPostalCursor(dbMonth, null, null, mkdPremiseId);
 
         return fillData(resultSet);
     }
