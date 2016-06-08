@@ -11,3 +11,8 @@
 .history
 target/
 data/
+
+#properties
+conf/db.properties
+logs/
+project/project/
