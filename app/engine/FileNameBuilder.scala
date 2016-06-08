@@ -3,6 +3,7 @@ package engine
 import java.text.SimpleDateFormat
 import java.util.Date
 
+import config.AppConfig
 import services.parameters.{CisDivision, MkdChs}
 
 object FileNameBuilder {
@@ -27,7 +28,7 @@ object FileNameBuilder {
   def createPremiseCSVFileName(mkdChs: MkdChs)(code: String, num: Int) =
     s"Ab_premise_${mkdToStr(mkdChs)}_${code}${numToStr(num)}.csv"
 
-  def rootPath(processId: String) = s"data//$processId"
+  def rootPath(processId: String) = s"${AppConfig.root}//data//$processId"
 
   def rootPathSource(processId: String) = s"${rootPath(processId)}//source"
 
