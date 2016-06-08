@@ -1,10 +1,35 @@
 package config
 
+import java.io.FileInputStream
+import java.util.Properties
+
+import play.Logger._
+
 object DBConfig {
 
-  val url = "jdbc:oracle:thin:@proddb.lesk.ru:1521:LESKMIGR"
+  private val dbProperties = readDbPropertiesFile
+
+  def readDbPropertiesFile = {
+
+    info("read db properties")
+
+    val prop = new Properties()
+
+    val inputStream = new FileInputStream(AppConfig.dbPropertiesPath)
+    info(s"inputStream = $inputStream")
+
+    try {
+      prop.load(inputStream)
+    } finally {
+      if (inputStream != null) inputStream.close()
+    }
+
+    prop
+  }
+
   val driver = "oracle.jdbc.driver.OracleDriver"
-  val username = "lcmccb"
-  val password = "lcmccb2l1"
+  val url = dbProperties.getProperty("url")
+  val username = dbProperties.getProperty("username")
+  val password = dbProperties.getProperty("password")
 
 }

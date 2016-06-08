@@ -13,6 +13,8 @@ object AppConfig {
   val scriptPath   = s"$root//conf//queries//script.sql"
   val templatePath = s"$root//conf//templates//template.xlsx"
 
+  val dbPropertiesPath = s"$root//conf//db.properties"
+
   val COMPANY_TAG = "<COMPANY>"
   val MKD_TAG = "<IS_MKD>"
   val BODY_TAG = "<BODY>"
