@@ -6,7 +6,7 @@ object AppConfig {
   val countPartition = 8
   val partition = 1000
 
-  val templatePath = "templates//template.xlsx"
+  val templatePath = s"$root//conf//templates//template.xlsx"
 
   val COMPANY_TAG = "<COMPANY>"
   val MKD_TAG = "<IS_MKD>"
