@@ -1,5 +1,6 @@
 package services;
 
+import config.AppConfig;
 import services.parameters.CisDivision;
 import services.parameters.MkdChs;
 
@@ -15,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static play.Logger.debug;
-import static play.Logger.info;
 import static play.Logger.trace;
 
 /**
@@ -26,7 +26,7 @@ public final class ExportService {
     private final SqlScript script;
 
     public ExportService(Connection connection) throws SQLException, IOException {
-        script = new SqlScript(new File("conf//queries//script.sql"), connection);
+        script = new SqlScript(new File(AppConfig.scriptPath()), connection);
     }
 
     private List<ArrayList<String>> fillData(ResultSet resultSet) throws SQLException {
