@@ -71,7 +71,7 @@ class Application extends Controller {
             Ok(toJson(ExportResultInfo(processId = "", error = MessageBuilder.repeatCodeMessage(filterCodeArray))))
           } else {
 
-              info(s"start processId = $processId")
+              info(s"start processId = $processId; attr = $attr")
 
               val f = ExportEngine.start(
                 mkdPremiseId = attr.mkdPremiseId,

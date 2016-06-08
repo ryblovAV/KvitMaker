@@ -17,7 +17,7 @@
         $scope.getArchiveDisabled = true;
         $scope.archiveMessage = "";
         $scope.saveArchive = true; 
-        $scope.orderBy = 1;
+        $scope.orderByIndex = "0";
 
         $scope.submit = function() {
 
@@ -35,7 +35,8 @@
                 mkdType: $scope.mkdType,
                 division: $scope.division,
                 premId: $scope.premId,
-                codeArrayStr: $scope.codeArray
+                codeArrayStr: $scope.codeArray,
+                orderByIndex: parseInt($scope.orderByIndex)
             }
 
             console.log("load " + $scope.month + '.' + $scope.year + ", "

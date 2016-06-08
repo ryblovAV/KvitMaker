@@ -42,6 +42,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Сортировать по индексам</label>
+                        <div class="radio">
+                            <label><input ng-model="orderByIndex" type = "radio" value="1">Да</label>
+                            <label><input ng-model="orderByIndex" type = "radio" value="0">Нет</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label>Коды участков:</label>
                         <input ng-model="codeArray" class="form-control" type="text"/>
                     </div>
