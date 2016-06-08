@@ -34,7 +34,6 @@ object FileEngine {
                  ) = {
 
     info(s"processId = $processId, start make files code = $code")
-
     val path = createPath(code)
 
     val registry = RegistryBuilder.makeRegistry(groupBills)
@@ -78,17 +77,14 @@ object FileEngine {
   }
 
   private def makeFileFromTemplate(filePath: String) = {
-    val file = new File(filePath)
+    val excelFile = new File(filePath)
     val templateFile = new File(AppConfig.templatePath)
-
-    FileUtils.copyFile(templateFile,file)
-    file
+    FileUtils.copyFile(templateFile,excelFile)
+    excelFile
   }
 
   def makeRegistryFile(code: String, dt: Date, num: Int, path: String) = {
-
     val filePath = s"$path//${FileNameBuilder.createRegistryFileName(code,dt,num)}"
-
     makeFileFromTemplate(filePath = filePath)
   }
 
