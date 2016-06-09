@@ -3,6 +3,8 @@ package engine.file
 import java.io.{BufferedWriter, File, FileOutputStream, OutputStreamWriter}
 import java.util.{ArrayList => JArrayList}
 
+import models.Kvit
+
 import scala.collection.JavaConverters._
 
 object CSVBuilder {
@@ -27,7 +29,7 @@ object CSVBuilder {
     def formatString(s: String) = if (s.indexOf(separator) >= 0) "\""+s+"\""  else s
 
     def writeString(bill: JArrayList[String], writer: BufferedWriter) = {
-      bill.asScala.drop(3).map(formatString).map(_+separator).foreach(writer.append)
+      bill.asScala.drop(Kvit.countServiceAttr).map(formatString).map(_+separator).foreach(writer.append)
       writer.append(endLine)
     }
 

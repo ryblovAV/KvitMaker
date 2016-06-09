@@ -21,18 +21,23 @@ object GroupEngine {
     }
   }
 
-  def attrByIndex(a: (JArrayList[String], Int), attrIndex: Int) = a match {
-    case (e, i) => e.get(attrIndex)
-  }
-
   def index(a: Seq[(JArrayList[String], Int)]) = a.head match {
       case (_,i) => i
   }
 
+  def attrByIndex(a: (JArrayList[String], Int), attrIndex: Int) = a match {
+    case (e, i) => e.get(attrIndex)
+  }
+
   def splitByPartition(listPostal: List[(JArrayList[String], Int)],
                        partitionCnt: Int) = {
+
+    def getAddressAttr(a: (JArrayList[String], Int)): String = a match {
+      case (e, i) => s"${e.get(ADDRESS_SHORT_INDEX)}~${e.get(ADDRESS2_INDEX)}"
+    }
+
     listPostal.
-      groupBy(attrByIndex(_, ADDRESS_SHORT_INDEX))
+      groupBy(getAddressAttr(_))
       .values
       .toSeq
       .sortBy(index)
@@ -42,8 +47,11 @@ object GroupEngine {
   }
 
   def group(bills: List[(JArrayList[String], Int)], partitionCnt: Int) = {
+
+    def getPostal(a: (JArrayList[String], Int)) = attrByIndex(a, POSTAL_INDEX)
+
     bills
-      .groupBy(attrByIndex(_, POSTAL_INDEX))
+      .groupBy(getPostal(_))
       .values
       .toList
       .sortBy(index)
