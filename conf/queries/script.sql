@@ -34,11 +34,12 @@ call lcmccb.p_kwee.pcm_kvee_notmkd(
                      );
 
 -- Запрос на получение списка квитанций МКД (с сортировкой по почтовому индексу).
--- Первые три поля (bd_lesk, postal, addressshort) используются для сортировки и разделения
+-- Первые четыре поля (bd_lesk, postal, addressshort и address2) используются для сортировки и разделения
 -- и в выгрузке присутствовать не должны.
 select bd_lesk,
        postal,
        upper(addressshort) addressshort,
+       address2,
        DBM_NAME,
        '' " ",
        Company,
@@ -482,11 +483,12 @@ select bd_lesk,
                   upper(address4));
 
 -- Запрос на получение списка квитанций МКД (с сортировкой по улицам).
--- Первые три поля (bd_lesk, postal, addressshort) используются для сортировки и разделения
+-- Первые четыре поля (bd_lesk, postal, addressshort и address2) используются для сортировки и разделения
 -- и в выгрузке присутствовать не должны.
 select bd_lesk,
   postal,
   upper(addressshort) addressshort,
+  address2,
   DBM_NAME,
   '' " ",
   Company,
@@ -929,11 +931,12 @@ from (select distinct
         upper(address4));
 
 -- Запрос на получение списка квитанций неМКД (с сортировкой по почтовому индексу).
--- Первые три поля (bd_lesk, postal, addressshort) используются для сортировки и разделения
+-- Первые четыре поля (bd_lesk, postal, addressshort и address2) используются для сортировки и разделения
 -- и в выгрузке присутствовать не должны.
 select bd_lesk,
        postal,
        upper(addressshort) addressshort,
+       address2,
        DBM_NAME,
        '' " ",
        Company,
@@ -1192,11 +1195,12 @@ select bd_lesk,
                   upper(address4));
 
 -- Запрос на получение списка квитанций неМКД (с сортировкой по улицам).
--- Первые три поля (bd_lesk, postal, addressshort) используются для сортировки и разделения
+-- Первые четыре поля (bd_lesk, postal, addressshort и address2) используются для сортировки и разделения
 -- и в выгрузке присутствовать не должны.
 select bd_lesk,
   postal,
   upper(addressshort) addressshort,
+  address2,
   DBM_NAME,
   '' " ",
   Company,
