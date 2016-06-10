@@ -9,6 +9,14 @@
 
         <div class="row">
             <div class="col-md-3">
+
+                <div>
+                    <br>
+                    <p><a href="processes" target="_blank">Список файлов</a></p>
+                    <p><a href="actives" target="_blank">Текущие активные процессы</a></p>
+                </div>
+
+
                 <form role="form">
                     <div class="form-group">
                         <label>Месяц:</label>
@@ -80,6 +88,7 @@
 
                 <p>{{ archiveMessage }}</p>
                 <button class="btn btn-default" ng-disabled="getArchiveDisabled" ng-click="getArchive()">Archive</button>
+
 
             </div>
         </div>
