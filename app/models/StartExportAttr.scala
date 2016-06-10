@@ -29,10 +29,23 @@ case class StartExportAttr(month: Int,
 
   def isFindByPremiseId = !mkdPremiseId.isEmpty
 
-  val codeArray = codeArrayStr.split(";")
+  val codeArray = StartExportAttr.strToArray(codeArrayStr)
 
   def key(code: String) = s"$month~$year~$code"
 
   def orderByIndex = if (orderBy == 1) true else false
 
+}
+
+object StartExportAttr {
+  def intCodeToString(code: Int) = if (code < 10) s"0$code" else code.toString
+
+  def strToArray(str: String) =
+    if (str.isEmpty) Array.empty[String]
+    else str
+      .split(";")
+      .map(_.split("-").map(s => s.toInt))
+      .map(a => if (a.length == 1) List(a.head) else (a.head to a.last).toList)
+      .flatMap(c => c.map(intCodeToString))
+      .distinct
 }

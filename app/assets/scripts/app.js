@@ -35,7 +35,7 @@
                 mkdType: $scope.mkdType,
                 division: $scope.division,
                 premId: $scope.premId,
-                codeArrayStr: $scope.codeArray,
+                codeArrayStr: $scope.codeArray.trim(),
                 orderByIndex: parseInt($scope.orderByIndex)
             }
 
@@ -77,12 +77,24 @@
 
         function check() {
 
-            var s = $scope.codeArray.split(";")
-            for (i = 0; i < s.length; i++) {
-              if (s[i].length != 2)
-                  return "значение атрибута 'код участка' = '" + s[i] + "' - должно содержать 2 символа";
-              if (!isNormalInteger(s[i]))
-                  return "значение атрибута 'код участка' = '" + s[i] + "' - не является положительным целым числом";
+            if (($scope.codeArray != undefined) && ($scope.codeArray.trim().length > 0)) {
+
+                var s = $scope.codeArray.split(";");
+
+                for (i = 0; i < s.length; i++) {
+
+                  var range = s[i].split("-");
+
+                  if (range.length > 2)
+                      return "Для значения атрибута 'код участка' = '" + s[i] + "' - неправильно указан диапазон";
+
+                  for (k = 0; k < range.length; k++) {
+                      if (range[k].length != 2)
+                          return "значение атрибута 'код участка' = '" + range[k] + "' - должно содержать 2 символа";
+                      if (!isNormalInteger(range[k]))
+                          return "значение атрибута 'код участка' = '" + range[k] + "' - не является положительным целым числом";
+                  }
+                }
             }
 
             var year = new Date().getFullYear();
