@@ -50,7 +50,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.LESK, "13");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.LESK, "13", true);
 
         assertTrue(bills.size() > 30_000);
     }
@@ -60,7 +60,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.LESK, "13");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.LESK, "13", true);
 
         assertTrue(bills.size() > 25_000);
     }
@@ -70,7 +70,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.GESK, "88");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.MKD, CisDivision.GESK, "88", true);
 
         assertTrue(bills.size() > 30_000);
     }
@@ -80,7 +80,7 @@ public class ExportServiceTest {
 
         Date month = new SimpleDateFormat("dd.MM.yyyy").parse("01.04.2016");
 
-        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.GESK, "43");
+        List<ArrayList<String>> bills = exportService.getBills(month, MkdChs.CHS, CisDivision.GESK, "43", true);
 
         assertTrue(bills.size() > 1_000);
     }
