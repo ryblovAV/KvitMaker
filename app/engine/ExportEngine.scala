@@ -80,7 +80,8 @@ object ExportEngine {
     val n = if (codeArray.size < AppConfig.countPartition) 1 else codeArray.size / AppConfig.countPartition
 
     info(s"codeArray.size = ${codeArray.size}, countPartition = ${AppConfig.countPartition}, n = $n")
-
+    info(s"codeArray = $codeArray")
+    info(s"mkdPremiseId = $mkdPremiseId")
 
     val l = codeArray
       .grouped(n)

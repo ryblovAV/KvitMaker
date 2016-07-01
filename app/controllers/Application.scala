@@ -88,17 +88,23 @@ class Application extends Controller {
               f.onComplete(r => r match {
                 case Success(s) =>
                   info(s"processId = $processId complete: ${Calendar.getInstance().getTime} ${logResult(s)}")
-                  ProcessResultDBStorage.addProcessResult(
-                    ProcessResult(
-                      processId = processId,
-                      fileName = FileEngine.makeZip(processId),
-                      ip = request.remoteAddress,
-                      codeArray = codeArray,
-                      month = attr.month,
-                      mkdType = attr.mkdType,
-                      mkdPremiseId = attr.mkdPremiseId
+
+                  if (!s.isEmpty) {
+                    ProcessResultDBStorage.addProcessResult(
+                      ProcessResult(
+                        processId = processId,
+                        fileName = FileEngine.makeZip(processId),
+                        ip = request.remoteAddress,
+                        codeArray = codeArray,
+                        month = attr.month,
+                        mkdType = attr.mkdType,
+                        mkdPremiseId = attr.mkdPremiseId
+                      )
                     )
-                  )
+                  } else {
+                    info("not found data")
+                    Ok(toJson(ExportResultInfo(processId,"NO DATA FOUND")))
+                  }
                 case Failure(e) =>
                   error(e.toString)
                   Ok(toJson(ExportResultInfo(processId,e.getMessage)))
