@@ -246,8 +246,17 @@ select bd_lesk,
        KVITGP,
        KVITDELE,
        KVITOGRA,
-       KVITGPDELEOGRA
-  from (select distinct
+       KVITGPDELEOGRA,
+       EL_B,
+       PENI_B,
+       DELEGAT_B,
+       GP_B,
+       CN_B,
+       PENI_T,
+       DELEGAT_T,
+       GP_T,
+       CN_T
+from (select distinct
                bd_lesk,
                leskgesk,
                upper(addressshort) addressshort,
@@ -459,7 +468,16 @@ select bd_lesk,
                address2,
                address3,
                address4,
-               postal
+               postal,
+               EL_B,
+               PENI_B,
+               DELEGAT_B,
+               GP_B,
+               CN_B,
+               PENI_T,
+               DELEGAT_T,
+               GP_T,
+               CN_T
           from lcmccb.CM_KVEE_MKD_CSV k
          where pdat = :pdat
            and (:mkd_id is null
@@ -695,7 +713,16 @@ select bd_lesk,
   KVITGP,
   KVITDELE,
   KVITOGRA,
-  KVITGPDELEOGRA
+  KVITGPDELEOGRA,
+  EL_B,
+  PENI_B,
+  DELEGAT_B,
+  GP_B,
+  CN_B,
+  PENI_T,
+  DELEGAT_T,
+  GP_T,
+  CN_T
 from (select distinct
         bd_lesk,
         leskgesk,
@@ -908,7 +935,16 @@ from (select distinct
         address2,
         address3,
         address4,
-        postal
+        postal,
+        EL_B,
+        PENI_B,
+        DELEGAT_B,
+        GP_B,
+        CN_B,
+        PENI_T,
+        DELEGAT_T,
+        GP_T,
+        CN_T
       from lcmccb.CM_KVEE_MKD_CSV k
       where pdat = :pdat
             and (:mkd_id is null
@@ -1055,7 +1091,16 @@ select bd_lesk,
        KVITGP,
        KVITDELE,
        KVITOGRA,
-       KVITGPDELEOGRA
+       KVITGPDELEOGRA,
+       EL_B,
+       PENI_B,
+       DELEGAT_B,
+       GP_B,
+       CN_B,
+       PENI_T,
+       DELEGAT_T,
+       GP_T,
+       CN_T
   from (select distinct
                bd_lesk,
                leskgesk,
@@ -1180,7 +1225,16 @@ select bd_lesk,
                address2,
                address3,
                address4,
-               postal
+               postal,
+               EL_B,
+               PENI_B,
+               DELEGAT_B,
+               GP_B,
+               CN_B,
+               PENI_T,
+               DELEGAT_T,
+               GP_T,
+               CN_T
           from lcmccb.CM_KVEE_NOTMKD_CSV
          where pdat = :pdat
            and leskgesk = :pleskgesk
@@ -1319,7 +1373,16 @@ select bd_lesk,
   KVITGP,
   KVITDELE,
   KVITOGRA,
-  KVITGPDELEOGRA
+  KVITGPDELEOGRA,
+  EL_B,
+  PENI_B,
+  DELEGAT_B,
+  GP_B,
+  CN_B,
+  PENI_T,
+  DELEGAT_T,
+  GP_T,
+  CN_T
 from (select distinct
         bd_lesk,
         leskgesk,
@@ -1444,7 +1507,16 @@ from (select distinct
         address2,
         address3,
         address4,
-        postal
+        postal,
+        EL_B,
+        PENI_B,
+        DELEGAT_B,
+        GP_B,
+        CN_B,
+        PENI_T,
+        DELEGAT_T,
+        GP_T,
+        CN_T
       from lcmccb.CM_KVEE_NOTMKD_CSV
       where pdat = :pdat
             and leskgesk = :pleskgesk
