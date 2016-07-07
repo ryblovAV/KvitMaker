@@ -20,7 +20,7 @@
 -- обязательно должны быть указаны либо ПАУ и район, либо ID МКД.
 call lcmccb.p_kwee.pcm_kvee_mkd
               (
-              vpdat => :pdat
+              vpdat => trunc(:pdat, 'mm')
               , pleskgesk => :pleskgesk
               , pbd_lesk => :pbd_lesk
               , pprnt_prem_id => :mkd_id
@@ -28,7 +28,7 @@ call lcmccb.p_kwee.pcm_kvee_mkd
 
 -- Процедура формирования квтианций для неМКД.
 call lcmccb.p_kwee.pcm_kvee_notmkd(
-                     vpdat => :pdat
+                     vpdat => trunc(:pdat, 'mm')
                      , pleskgesk => :pleskgesk
                      , pbd_lesk => :pbd_lesk
                      );
@@ -479,7 +479,7 @@ from (select distinct
                GP_T,
                CN_T
           from lcmccb.CM_KVEE_MKD_CSV k
-         where pdat = :pdat
+         where pdat = trunc(:pdat, 'mm')
            and (:mkd_id is null
                 and leskgesk = :pleskgesk
                 and bd_lesk = :pbd_lesk
@@ -946,7 +946,7 @@ from (select distinct
         GP_T,
         CN_T
       from lcmccb.CM_KVEE_MKD_CSV k
-      where pdat = :pdat
+      where pdat = trunc(:pdat, 'mm')
             and (:mkd_id is null
                  and leskgesk = :pleskgesk
                  and bd_lesk = :pbd_lesk
@@ -1236,7 +1236,7 @@ select bd_lesk,
                GP_T,
                CN_T
           from lcmccb.CM_KVEE_NOTMKD_CSV
-         where pdat = :pdat
+         where pdat = trunc(:pdat, 'mm')
            and leskgesk = :pleskgesk
            and bd_lesk = :pbd_lesk
          order by bd_lesk,
@@ -1518,7 +1518,7 @@ from (select distinct
         GP_T,
         CN_T
       from lcmccb.CM_KVEE_NOTMKD_CSV
-      where pdat = :pdat
+      where pdat = trunc(:pdat, 'mm')
             and leskgesk = :pleskgesk
             and bd_lesk = :pbd_lesk
       order by bd_lesk,
