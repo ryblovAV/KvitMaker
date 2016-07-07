@@ -13,7 +13,9 @@ case class StartExportAttr(month: Int,
                            orderBy: Int) {
   def dt = {
     val calendar = Calendar.getInstance
-    calendar.set(year, month-1, 1)
+    calendar.set(year, month-1, 1, 0, 0, 0)
+    calendar.set(Calendar.MILLISECOND, 0);
+
     calendar.getTime
   }
 
