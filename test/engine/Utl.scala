@@ -13,7 +13,7 @@ object Utl {
     l.add("01")
     l.add(s"postal_$postal")
     l.add(s"address_$address")
-
+    l.add(s"address2_$address")
     l
   }
 

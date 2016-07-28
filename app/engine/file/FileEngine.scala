@@ -4,11 +4,13 @@ import java.io.File
 import java.util.{Date, ArrayList => JArrayList, List => JList}
 
 import config.AppConfig
-import engine.{FileNameBuilder, RegistryBuilder}
+import engine.{FileNameBuilder, RegistryUnionRow, RegistryBuilder}
 import org.apache.commons.io.FileUtils
 import org.zeroturnaround.zip.ZipUtil
 import play.Logger._
 import services.parameters.MkdChs
+
+import scala.collection.immutable.IndexedSeq
 
 object FileEngine {
 
@@ -41,29 +43,44 @@ object FileEngine {
 
     info(s"make registry complete: ${registry.length}")
 
-    registry.zipWithIndex.foreach{
-        case (r,index) =>
-          val xlsxFile = makeRegistryFile(code = code,dt = dt, num = index, path = path)
-          ExcelEngine.fillData(code = code, mkd = mkdChs, registryData = r, file = xlsxFile)
+    registry.zipWithIndex.foreach {
+      case (r, index) =>
+        val xlsxFile = makeRegistryFile(code = code, dt = dt, num = index, path = path)
+        ExcelEngine.fillDataRegistry(code = code, mkd = mkdChs, registryData = r, file = xlsxFile)
     }
 
-    val fullRegistryFile = makeFullRegistryFile(dt = dt, path = path)
+    val fullRegistryFile = makeUnionRegistryFile(dt = dt, path = path)
     info("make full registry file complete")
 
-    ExcelEngine.fillData(
+    val registryUnion = registry
+      .zipWithIndex
+      .flatMap {
+        case (rows, index) => rows
+          .groupBy(_.postal)
+          .map {
+            case (postal, rows) =>
+              RegistryUnionRow(
+                numPackage = index + 1,
+                postal = postal,
+                count = rows.foldLeft(0)((s,row) => s + row.count))
+          }
+      }
+
+    ExcelEngine.fillDataUnionRegistry(
       code = code,
       mkd = mkdChs,
-      registryData = registry.flatMap(l => l.toList),
+      registryData = registryUnion,
       file = fullRegistryFile)
 
+    //make CSV files
     groupBills.zipWithIndex.map {
       case (bills, index) =>
         makeCSVFile(
-            code = code,
-            num = index,
-            path = path,
-            createFileName = createCSVFileName,
-            bills = bills)
+          code = code,
+          num = index,
+          path = path,
+          createFileName = createCSVFileName,
+          bills = bills)
     }
   }
 
@@ -77,26 +94,26 @@ object FileEngine {
 
     (new File(path)).mkdirs()
 
-    CSVBuilder.writeToFile(new File(filePath),bills)
+    CSVBuilder.writeToFile(new File(filePath), bills)
   }
 
-  private def makeFileFromTemplate(filePath: String) = {
+  private def makeFileFromTemplate(filePath: String, templateFilePath: String) = {
     info(s"start makeFileFromTemplate, filePath = $filePath")
     val excelFile = new File(filePath)
-    val templateFile = new File(AppConfig.templatePath)
-    FileUtils.copyFile(templateFile,excelFile)
+    val templateFile = new File(templateFilePath)
+    FileUtils.copyFile(templateFile, excelFile)
     info("create file complete")
     excelFile
   }
 
   def makeRegistryFile(code: String, dt: Date, num: Int, path: String) = {
-    val filePath = s"$path//${FileNameBuilder.createRegistryFileName(code,dt,num)}"
-    makeFileFromTemplate(filePath = filePath)
+    val filePath = s"$path//${FileNameBuilder.createRegistryFileName(code, dt, num)}"
+    makeFileFromTemplate(filePath = filePath, templateFilePath = AppConfig.templatePath)
   }
 
-  def makeFullRegistryFile(dt: Date, path: String) = {
+  def makeUnionRegistryFile(dt: Date, path: String) = {
     val filePath = s"$path//${FileNameBuilder.createFullRegistryFileName(dt)}"
-    makeFileFromTemplate(filePath = filePath)
+    makeFileFromTemplate(filePath = filePath, templateFilePath = AppConfig.unionTemplatePath)
   }
 
 }
