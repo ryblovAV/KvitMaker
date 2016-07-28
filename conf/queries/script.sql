@@ -255,7 +255,16 @@ select bd_lesk,
        PENI_T,
        DELEGAT_T,
        GP_T,
-       CN_T
+       CN_T,
+       MKD_LIFT,
+       MKD_NASG,
+       MKD_NASH,
+       MKD_OSV,
+       MKD_PRPO,
+       MKD_USAN,
+       MKD_ZAPU,
+       MKDLEVEL,
+       MOP
 from (select distinct
                bd_lesk,
                leskgesk,
@@ -477,7 +486,16 @@ from (select distinct
                PENI_T,
                DELEGAT_T,
                GP_T,
-               CN_T
+               CN_T,
+               MKD_LIFT,
+               MKD_NASG,
+               MKD_NASH,
+               MKD_OSV,
+               MKD_PRPO,
+               MKD_USAN,
+               MKD_ZAPU,
+               MKDLEVEL,
+               MOP
           from lcmccb.CM_KVEE_MKD_CSV k
          where pdat = trunc(:pdat, 'mm')
            and (:mkd_id is null
@@ -722,7 +740,16 @@ select bd_lesk,
   PENI_T,
   DELEGAT_T,
   GP_T,
-  CN_T
+  CN_T,
+  MKD_LIFT,
+  MKD_NASG,
+  MKD_NASH,
+  MKD_OSV,
+  MKD_PRPO,
+  MKD_USAN,
+  MKD_ZAPU,
+  MKDLEVEL,
+  MOP
 from (select distinct
         bd_lesk,
         leskgesk,
@@ -944,7 +971,16 @@ from (select distinct
         PENI_T,
         DELEGAT_T,
         GP_T,
-        CN_T
+        CN_T,
+        MKD_LIFT,
+        MKD_NASG,
+        MKD_NASH,
+        MKD_OSV,
+        MKD_PRPO,
+        MKD_USAN,
+        MKD_ZAPU,
+        MKDLEVEL,
+        MOP
       from lcmccb.CM_KVEE_MKD_CSV k
       where pdat = trunc(:pdat, 'mm')
             and (:mkd_id is null
