@@ -264,7 +264,9 @@ select bd_lesk,
        MKD_USAN,
        MKD_ZAPU,
        MKDLEVEL,
-       MOP
+       MOP,
+       ODN8R,
+       ODN8N
 from (select distinct
                bd_lesk,
                leskgesk,
@@ -495,7 +497,9 @@ from (select distinct
                MKD_USAN,
                MKD_ZAPU,
                MKDLEVEL,
-               MOP
+               MOP,
+               ODN8R,
+               ODN8N
           from lcmccb.CM_KVEE_MKD_CSV k
          where pdat = trunc(:pdat, 'mm')
            and (:mkd_id is null
@@ -749,7 +753,9 @@ select bd_lesk,
   MKD_USAN,
   MKD_ZAPU,
   MKDLEVEL,
-  MOP
+  MOP,
+  ODN8R,
+  ODN8N
 from (select distinct
         bd_lesk,
         leskgesk,
@@ -980,7 +986,9 @@ from (select distinct
         MKD_USAN,
         MKD_ZAPU,
         MKDLEVEL,
-        MOP
+        MOP,
+        ODN8R,
+        ODN8N
       from lcmccb.CM_KVEE_MKD_CSV k
       where pdat = trunc(:pdat, 'mm')
             and (:mkd_id is null
