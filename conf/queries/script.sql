@@ -270,7 +270,8 @@ select
   ODN8N,
   FACTOR,
   FACTOR_ODN,
-  PL_NORM
+  PL_NORM,
+  MKD_ALL
 from (select distinct
         bd_lesk,
         leskgesk,
@@ -506,7 +507,8 @@ from (select distinct
         ODN8N,
         FACTOR,
         FACTOR_ODN,
-        PL_NORM
+        PL_NORM,
+        MKD_ALL
           from lcmccb.CM_KVEE_MKD_CSV k
          where pdat = trunc(:pdat, 'mm')
            and (:mkd_id is null
@@ -765,7 +767,8 @@ select bd_lesk,
   ODN8N,
   FACTOR,
   FACTOR_ODN,
-  PL_NORM
+  PL_NORM,
+  MKD_ALL
 from (select distinct
         bd_lesk,
         leskgesk,
@@ -1001,7 +1004,8 @@ from (select distinct
         ODN8N,
         FACTOR,
         FACTOR_ODN,
-        PL_NORM
+        PL_NORM,
+        MKD_ALL
       from lcmccb.CM_KVEE_MKD_CSV k
       where pdat = trunc(:pdat, 'mm')
             and (:mkd_id is null
